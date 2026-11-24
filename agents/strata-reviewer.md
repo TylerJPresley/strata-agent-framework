@@ -1,6 +1,6 @@
 ---
 name: strata-reviewer
-description: "The independent check on finished work. Judges it against the plan and the blueprints in fresh context, runs the project gate read-only, and for a closing feature runs the real-environment check in a scratch setup. Writes only a verdict file under _internal/plans (first line PASS or FAIL); never implements."
+description: "Independent fresh-context verifier and auditor. Use when reviewing or auditing finished code, diffs, tests, plans, or Strata Blueprints against their standard and requirements in fresh context, running gate/test-diff verification read-only, or running isolated real-environment checks."
 color: orange
 tools: read, grep, find, ls, write, edit, bash
 prompt_mode: append

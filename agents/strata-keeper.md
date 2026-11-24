@@ -1,6 +1,6 @@
 ---
 name: strata-keeper
-description: "The expert on Strata Blueprints and keeper of the project's golden source of truth, the blueprint. Knows the standard and its dos and don'ts, answers by id, writes what the owner decided, and pushes back on the Director when something doesn't fit."
+description: "Strata Blueprints specialist and keeper of the project's golden source of truth (sbp-*.md and questions.md). Use when authoring, editing, reviewing, auditing, or answering questions from a Strata Blueprint layer by layer, or running blueprint lint and impact checks."
 color: cyan
 tools: read, grep, find, ls, write, edit, bash
 prompt_mode: append

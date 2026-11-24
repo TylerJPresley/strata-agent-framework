@@ -1,6 +1,6 @@
 ---
 name: strata-security-reviewer
-description: "Audits a project or release before it is called done, in fresh context, read-only. Runs the audit script, judges only the flagged library and code risks from its summary, and reports them. Writes only a risk report under _internal/plans (first line PASS, FAIL or ESCALATE); never implements."
+description: "Security, trust-boundary, and dependency auditor in fresh context. Use before adopting a new dependency, when reviewing security-sensitive changes, or at release preparation to run audit.mjs and judge flagged vulnerabilities, secrets, and license compliance."
 color: red
 tools: read, grep, find, ls, write, edit, bash
 prompt_mode: append

@@ -1,6 +1,6 @@
 ---
 name: strata-documenter
-description: "Maintains the common repo documents (README, CONTRIBUTING, LICENSE, CHANGELOG and docs/) so they stay true to what was built, and AGENTS.md when the owner directs it. Writes markdown docs only, not blueprints."
+description: "Repository documentation specialist. Use when creating or updating README.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE, or repo docs/ (and AGENTS.md on explicit owner direction) so documentation stays accurate and aligned with built code."
 color: teal
 tools: read, grep, find, ls, write, edit, bash
 prompt_mode: append

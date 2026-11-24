@@ -459,15 +459,20 @@ function computeTargetPlan(t) {
     });
   };
 
-  const addDir = (srcSubdir, tgtRelPrefix = srcSubdir) => {
+  const addDir = (srcSubdir, tgtRelPrefix = srcSubdir, filterFn = null) => {
     const srcDir = path.join(source, srcSubdir);
     for (const abs of walk(srcDir)) {
       const subRel = path.relative(srcDir, abs);
+      if (filterFn && !filterFn(subRel, abs)) continue;
       addDesired(path.join(tgtRelPrefix, subRel), fs.readFileSync(abs));
     }
   };
 
-  const strataAgentsText = fs.readFileSync(path.join(source, "AGENTS.md"), "utf8");
+  const strataAgentsPath = path.join(source, "templates", "AGENTS.md");
+  const strataAgentsText = fs.readFileSync(
+    fs.existsSync(strataAgentsPath) ? strataAgentsPath : path.join(source, "AGENTS.md"),
+    "utf8"
+  );
 
   if (t.rootDoc) {
     const docBuf = buildManagedRootDoc(path.join(t.root, t.rootDoc), strataAgentsText, targetSkillsPrefix);
@@ -497,7 +502,9 @@ function computeTargetPlan(t) {
       }
     }
   } else {
-    if (t.agentSubdir) addDir("agents", t.agentSubdir);
+    // Non-Kiro harnesses enhance their default main agent via AGENTS.md/CLAUDE.md/GEMINI.md,
+    // so they only deploy the 7 specialist subagents (excluding strata-director.md).
+    if (t.agentSubdir) addDir("agents", t.agentSubdir, (subRel) => subRel !== "strata-director.md");
     if (t.skillSubdir) addDir("skills", t.skillSubdir);
   }
 

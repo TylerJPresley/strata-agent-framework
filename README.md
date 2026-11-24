@@ -2,7 +2,7 @@
 
 **AI agents:** start with [AGENTS.md](AGENTS.md) for commands, project map and rules.
 
-Version: `0.1.0` · License: [MIT](LICENSE)
+Version: `0.1.1` · License: [MIT](LICENSE)
 
 Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.
 

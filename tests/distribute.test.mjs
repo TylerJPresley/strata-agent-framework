@@ -39,23 +39,27 @@ test("deploys to detected default app folders (kiro, pi, claude), rewrites skill
   const r = runDist(home);
   assert.equal(r.status, 0, r.stdout + r.stderr);
 
-  // Kiro gets steering/ and compiled agents/*.json with ~/.kiro/skills/... paths
+  // Kiro gets steering/ and all 8 compiled agents/*.json (including strata-director.json) with ~/.kiro/skills/... paths
   assert.ok(fs.existsSync(path.join(home, ".kiro", ".strata-manifest.json")));
+  assert.ok(fs.existsSync(path.join(home, ".kiro", "agents", "strata-director.json")));
   assert.ok(fs.existsSync(path.join(home, ".kiro", "skills", "strata-lifecycle", "scripts", "verify-plan.mjs")));
   const kiroSteering = fs.readFileSync(path.join(home, ".kiro", "steering", "strata-concise.md"), "utf8");
   assert.match(kiroSteering, /~\/\.kiro\/skills\/strata-lifecycle/);
   assert.doesNotMatch(kiroSteering, /~\/\.agents\/skills\//);
 
-  // Pi gets real agents/ directory (symlink replaced) and managed block at bottom of AGENTS.md with ~/.pi/agent/skills/... paths
+  // Pi gets real agents/ directory (7 specialists, no strata-director.md) and managed block at bottom of AGENTS.md
   assert.ok(!fs.lstatSync(path.join(home, ".pi", "agent", "agents")).isSymbolicLink(), "symlink should be replaced with real dir");
+  assert.ok(fs.existsSync(path.join(home, ".pi", "agent", "agents", "strata-reviewer.md")));
+  assert.ok(!fs.existsSync(path.join(home, ".pi", "agent", "agents", "strata-director.md")), "Pi enhances default agent; no strata-director.md");
   const piAgentsMd = fs.readFileSync(path.join(home, ".pi", "agent", "AGENTS.md"), "utf8");
   assert.match(piAgentsMd, /# User Custom Pi Rules/);
   assert.match(piAgentsMd, /<!-- STRATA:START -->/);
   assert.match(piAgentsMd, /~\/\.pi\/agent\/skills\/strata-lifecycle/);
 
-  // Claude gets CLAUDE.md with ~/.claude/skills/... paths
+  // Claude gets CLAUDE.md with ~/.claude/skills/... paths and 7 specialists (no strata-director.md)
   const claudeMd = fs.readFileSync(path.join(home, ".claude", "CLAUDE.md"), "utf8");
   assert.match(claudeMd, /~\/\.claude\/skills\/strata-lifecycle/);
+  assert.ok(!fs.existsSync(path.join(home, ".claude", "agents", "strata-director.md")));
 
   // Hermes and agents-global are not deployed by default
   assert.ok(!fs.existsSync(path.join(home, ".hermes", ".strata-manifest.json")), "hermes should not be deployed by default");
@@ -74,7 +78,8 @@ test("--add deploys to a custom directory, preserves existing AGENTS.md lines ab
   const mfPath = path.join(customDir, ".strata-manifest.json");
   assert.ok(fs.existsSync(mfPath));
   const mf = JSON.parse(fs.readFileSync(mfPath, "utf8"));
-  assert.equal(mf.version, "0.1.0");
+  const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8"));
+  assert.equal(mf.version, pkg.version);
   const deployedDoc = fs.readFileSync(path.join(customDir, "AGENTS.md"), "utf8");
   assert.match(deployedDoc, /# Voidrift Project Rules/);
   assert.match(deployedDoc, /<!-- STRATA:START -->/);

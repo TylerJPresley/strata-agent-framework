@@ -1,6 +1,6 @@
 # Vision: The Agent Guidance Repository (`~/.agents`)
 
-Version: 0.1.0
+Version: 0.1.1
 Embedded Strata Blueprints: 0.3.0
 
 Intent: provide one portable, harness-agnostic development and project-handling framework that governs every coding agent through progressive disclosure, disk artifacts, and mechanical verification.

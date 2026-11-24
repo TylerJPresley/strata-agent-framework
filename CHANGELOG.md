@@ -2,6 +2,14 @@
 
 This changelog records releases of Strata Agent Framework. The `Version:` and `Embedded Strata Blueprints:` lines of `skills/strata-lifecycle/references/vision.md` are the single source of the framework version and the embedded `strata-blueprints` version, and the owner chooses release tags.
 
+## 0.1.1
+
+Separate repository development `AGENTS.md` from the deployed global Ring 1 template (`templates/AGENTS.md`) and refine default-agent enhancement vs. Kiro permission-boundary fan-out.
+
+- **Separate `AGENTS.md` and `templates/AGENTS.md`:** Root `AGENTS.md` now holds the repository development instructions for `strata-agent-framework` itself (never distributed to target harnesses), while `templates/AGENTS.md` holds the compiled Ring 1 global payload distributed into `<!-- STRATA:START --> ... <!-- STRATA:END -->` blocks in `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`.
+- **Enhanced Default Agent & Specialist Routing:** Added Invariant 5 (`Orchestrate via Specialist Subagents`) to `templates/AGENTS.md` and sharpened the trigger descriptions (`Use when...`) across all 7 specialist subagents (`strata-keeper`, `strata-planner`, `strata-implementer`, `strata-reviewer`, `strata-security-reviewer`, `strata-researcher`, `strata-documenter`).
+- **Per-Harness Agent Deployment:** Kiro (`~/.kiro`) deploys all 8 compiled `agents/strata-*.json` files (including `strata-director.json` for permission-boundary fan-out), while non-Kiro harnesses (`pi`, `claude`, `opencode`) enhance their default main agent and deploy only the 7 specialist subagents.
+
 ## 0.1.0
 
 First public release of Strata Agent Framework, embedding **Strata Blueprints `0.3.0`**.

@@ -1,6 +1,6 @@
 ---
 name: strata-implementer
-description: "Builds what the plan says, tests first, and reports what remains. Runs the project gate to verify locally. Writes source and tests and commits each checklist item on the plan's branch."
+description: "Test-first builder. Use when implementing code and tests from a feature plan or executing code changes: writes the failing test first, builds the smallest correct solution, runs mutation and project gate checks, and commits at each verified seam."
 color: green
 tools: read, grep, find, ls, write, edit, bash
 prompt_mode: append
