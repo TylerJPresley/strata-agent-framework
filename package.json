@@ -1,0 +1,24 @@
+{
+  "name": "strata-agent-framework",
+  "version": "0.1.0",
+  "description": "Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "author": "Tyler J Presley",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TylerJPresley/strata-agent-framework.git"
+  },
+  "embedded": {
+    "strata-blueprints": "0.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node gate.mjs",
+    "distribute": "node scripts/distribute.mjs",
+    "check": "node scripts/distribute.mjs --check"
+  }
+}

@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+// Where do Kiro tokens/credits go?  usage: node ~/.kiro/skills/strata-lifecycle/scripts/kiro-usage.mjs [session-id|latest|all] [--top N]
+// Views: `by-session` (top sessions, by working directory, by day) and `by-context [--agent NAME]` (credits per request by context bucket; default director).
+// Reads ~/.kiro/sessions/cli/<id>.json (user_turn_metadatas) - no model, no network.
+// The by-context view defaults to the director agent (the top-level session that routes work).
+import fs from "node:fs"; import path from "node:path"; import os from "node:os";
+const dir = path.join(os.homedir(), ".kiro/sessions/cli");
+const arg = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "latest";
+const topN = Number(process.argv[process.argv.indexOf("--top") + 1]) || 10;
+const since = process.argv.includes("--since") ? Date.parse(process.argv[process.argv.indexOf("--since") + 1]) : 0;
+const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => ({ f, t: fs.statSync(path.join(dir, f)).mtimeMs })).filter((x) => x.t >= since).sort((a, b) => b.t - a.t);
+const credit = (m) => { const u = m?.metering_usage; if (u == null) return 0; if (typeof u === "number") return u; if (Array.isArray(u)) return u.reduce((s, x) => s + (Number(x?.value ?? x?.usage ?? 0) || 0), 0); return Number(u.value ?? u.usage ?? 0) || 0; };
+
+const readSession = (f) => { try { return JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); } catch { return null; } }; // one place: a malformed session file is skipped in every view
+const readable = files.filter((x) => readSession(x.f));
+const pick = arg === "all" ? readable : arg === "latest" ? readable.slice(0, 1) : readable.filter((x) => x.f.startsWith(arg));
+const turnsOf = (j) => { const t = j.session_state?.conversation_metadata?.user_turn_metadatas; return Array.isArray(t) ? t : Object.values(t ?? {}); };
+if (arg === "by-session") {
+  const rows = [];
+  for (const { f } of files) { const j = readSession(f); if (!j) continue; const a = turnsOf(j); if (!a.length) continue;
+    rows.push({ id: f.slice(0, 8), agent: j.session_state?.agent_name, cwd: (j.cwd ?? "").replace(os.homedir(), "~"), from: (j.created_at ?? "").slice(0, 10), to: (j.updated_at ?? "").slice(0, 10), turns: a.length, reqs: a.reduce((s, x) => s + (x.total_request_count ?? 0), 0), cred: a.reduce((s, x) => s + credit(x), 0), maxctx: Math.max(...a.map((x) => x.final_context_usage_percentage ?? 0)), title: (j.title ?? "").replace(/\s+/g, " ").slice(0, 50) }); }
+  const tot = rows.reduce((s, r) => s + r.cred, 0);
+  console.log(`TOTAL ${Math.round(tot)} credits, ${rows.length} sessions\n\nTOP SESSIONS`);
+  for (const r of [...rows].sort((a, b) => b.cred - a.cred).slice(0, topN)) console.log(`${r.id} ${String(r.agent).padEnd(12)} ${r.from}..${r.to} turns ${String(r.turns).padStart(4)} reqs ${String(r.reqs).padStart(5)} cred ${String(Math.round(r.cred)).padStart(6)} (${Math.round((100 * r.cred) / tot)}%) maxctx ${Math.round(r.maxctx)}% ${r.cwd} | ${r.title}`);
+  const grp = (key) => { const g = {}; for (const r of rows) g[key(r)] = (g[key(r)] ?? 0) + r.cred; return Object.entries(g); };
+  console.log("\nBY WORKING DIRECTORY"); for (const [k, v] of grp((r) => r.cwd).sort((a, b) => b[1] - a[1]).slice(0, 8)) console.log(`${String(Math.round(v)).padStart(7)} ${k}`);
+  console.log("\nBY DAY (session last-updated date)"); for (const [k, v] of grp((r) => r.to).sort()) console.log(k, Math.round(v));
+  process.exit(0);
+}
+if (arg === "by-context") {
+  const agent = process.argv.includes("--agent") ? process.argv[process.argv.indexOf("--agent") + 1] : "director"; const b = {};
+  for (const { f } of files) { const j = readSession(f); if (!j) continue; if (j.session_state?.agent_name !== agent || j.parent_session_id) continue;
+    for (const x of turnsOf(j)) { const r = x.total_request_count ?? 0; if (!r) continue; const k = Math.floor((x.final_context_usage_percentage ?? 0) / 10) * 10; const v = (b[k] ??= { c: 0, r: 0, n: 0 }); v.c += credit(x); v.r += r; v.n++; } }
+  console.log(`agent ${agent}: context-bucket  turns  credits  requests  credits/request`);
+  for (const [k, v] of Object.entries(b).sort((x, y) => x[0] - y[0])) console.log(`${String(k).padStart(3)}%  ${String(v.n).padStart(5)} ${String(Math.round(v.c)).padStart(7)} ${String(v.r).padStart(8)}  ${(v.c / v.r).toFixed(2)}`);
+  process.exit(0);
+}
+let all = [];
+for (const { f } of pick) {
+  const j = readSession(f); if (!j) continue; const sa = j.session_state?.agent_name ?? "?"; const m = j.session_state?.conversation_metadata;
+  const t = m?.user_turn_metadatas; const turns = Array.isArray(t) ? t : Object.values(t ?? {});
+  turns.forEach((x, i) => all.push({ s: f.slice(0, 8), i, agent: sa, parent: x.loop_id?.agent_id?.parent_id, inp: x.input_token_count ?? 0, out: x.output_token_count ?? 0, cr: x.cache_read_input_token_count ?? 0, cw: x.cache_write_input_token_count ?? 0, cycles: x.number_of_cycles ?? 0, reqs: x.total_request_count ?? 0, secs: x.turn_duration?.secs ?? (typeof x.turn_duration === "number" ? x.turn_duration : 0), ctx: x.final_context_usage_percentage ?? 0, cred: credit(x), tools: x.builtin_tool_uses ? Object.values(x.builtin_tool_uses).reduce((a, b) => a + (Number(b) || 0), 0) : 0 }));
+}
+const sum = (k, a = all) => a.reduce((s, x) => s + x[k], 0); const fmt = (n) => (n >= 1e6 ? (n / 1e6).toFixed(2) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "k" : String(Math.round(n * 100) / 100));
+console.log(`sessions: ${pick.length}  turns: ${all.length}${since ? "  since " + new Date(since).toISOString().slice(0,10) : ""}`);
+const perSess = {}; for (const x of all) (perSess[x.s] ??= { agent: x.agent, cred: 0, reqs: 0 }), (perSess[x.s].cred += x.cred), (perSess[x.s].reqs += x.reqs);
+const byAgentSess = {}; for (const v of Object.values(perSess)) { const a = (byAgentSess[v.agent] ??= { n: 0, cred: 0 }); a.n++; a.cred += v.cred; }
+console.log("sessions by agent: agent  sessions  credits  avg/session"); for (const [k, v] of Object.entries(byAgentSess).sort((p, q) => q[1].cred - p[1].cred)) console.log(`  ${k.padEnd(22)} ${String(v.n).padStart(5)}  ${fmt(v.cred).padStart(8)}  ${fmt(v.cred / v.n).padStart(7)}`);
+console.log(`credits: ${fmt(sum("cred"))}  input: ${fmt(sum("inp"))}  output: ${fmt(sum("out"))}  cache-read: ${fmt(sum("cr"))}  cache-write: ${fmt(sum("cw"))}  requests: ${sum("reqs")}  cycles: ${sum("cycles")}`);
+const by = {}; for (const x of all) { const k = x.parent ? "sub:" + x.agent : x.agent; (by[k] ??= []).push(x); }
+console.log("\nby agent: name  turns  credits  input  output  requests");
+for (const [k, a] of Object.entries(by).sort((p, q) => sum("cred", q[1]) - sum("cred", p[1]))) console.log(`  ${k.padEnd(22)} ${String(a.length).padStart(4)}  ${fmt(sum("cred", a)).padStart(8)}  ${fmt(sum("inp", a)).padStart(8)}  ${fmt(sum("out", a)).padStart(8)}  ${String(sum("reqs", a)).padStart(5)}`);
+console.log(`\ntop ${topN} turns by credits: session turn agent credits input output reqs cycles tools secs ctx%`);
+for (const x of [...all].sort((a, b) => b.cred - a.cred).slice(0, topN)) console.log(`  ${x.s} #${String(x.i).padStart(3)} ${x.agent.padEnd(14)} ${fmt(x.cred).padStart(7)} ${fmt(x.inp).padStart(8)} ${fmt(x.out).padStart(7)} ${String(x.reqs).padStart(4)} ${String(x.cycles).padStart(3)} ${String(x.tools).padStart(3)} ${String(Math.round(x.secs)).padStart(5)}s ${Math.round(x.ctx)}%`);
+const many = all.filter((x) => x.reqs > 20); console.log(`\nturns with >20 model requests: ${many.length} of ${all.length}  (credits ${fmt(sum("cred", many))}, ${Math.round(100 * sum("cred", many) / Math.max(1, sum("cred")))}% of total; avg credits/request ${(sum("cred") / Math.max(1, sum("reqs"))).toFixed(2)})`);
+const big = all.filter((x) => x.ctx >= 70); console.log(`\nturns started/ended at >=70% context: ${big.length} of ${all.length}  (credits in them: ${fmt(sum("cred", big))}, ${Math.round(100 * sum("cred", big) / Math.max(1, sum("cred")))}% of total)`);
+
+// MODEL-CALL METRICS from transcripts (measured, not credits): calls = assistant messages; out = bytes of assistant messages;
+// (images are JSON byte arrays: counted as a fixed 6KB-equivalent each, not their inflated JSON size)
+// ctx-in = bytes re-sent as history on every call (sum over calls of everything before it) - the dominant input cost, system prompt/tools excluded.
+// Subagent runs are UNMETERED by Kiro (no tokens/credits; parent turn totals exclude them), so these are the only measure of their size.
+const measure = (jl) => { let calls = 0, out = 0, inn = 0, hist = 0; for (const l of fs.readFileSync(jl, "utf8").trim().split("\n")) { let e; try { e = JSON.parse(l); } catch { continue; } const raw = JSON.stringify(e.data ?? {}); const imgs = (raw.match(/\[[\d,]{500,}\]/g) ?? []).length; const b = Buffer.byteLength(raw.replace(/\[[\d,]{500,}\]/g, "[]")) + imgs * 6000; if (e.kind === "AssistantMessage") { calls++; out += b; inn += hist; } hist += b; } return { calls, out, inn }; };
+const mb = (n) => (n / 1e6).toFixed(1);
+{
+  const ids = new Set(pick.map((x) => x.f.slice(0, -5)));
+  const subs = []; const main = { calls: 0, out: 0, inn: 0 };
+  for (const { f } of pick) { const jl = path.join(dir, f.slice(0, -5) + ".jsonl"); if (fs.existsSync(jl)) { const m = measure(jl); for (const k of Object.keys(main)) main[k] += m[k]; } }
+  for (const { f } of files) {
+    const j = readSession(f); if (!j) continue;
+    if (!j.parent_session_id || (arg !== "all" && !ids.has(j.parent_session_id))) continue;
+    const jl = path.join(dir, f.slice(0, -5) + ".jsonl"); if (!fs.existsSync(jl)) continue;
+    subs.push({ id: f.slice(0, 8), title: (j.title ?? "").replace(/\s+/g, " ").slice(0, 40), ...measure(jl) });
+  }
+  const t = (k) => subs.reduce((s, x) => s + x[k], 0);
+  console.log(`\nMODEL CALLS from transcripts (measured; credits NOT recorded for subagents):  calls  out-MB  ctx-in-MB`);
+  console.log(`  director (picked sessions)            ${String(main.calls).padStart(7)}  ${mb(main.out).padStart(6)}  ${mb(main.inn).padStart(9)}`);
+  console.log(`  subagents (${subs.length} sessions, parent_session_id set)${" ".repeat(Math.max(1, 5 - String(subs.length).length))}${String(t("calls")).padStart(7)}  ${mb(t("out")).padStart(6)}  ${mb(t("inn")).padStart(9)}`);
+  for (const x of [...subs].sort((a, b) => b.inn - a.inn).slice(0, 5)) console.log(`    ${x.id} calls ${String(x.calls).padStart(4)}  out ${mb(x.out).padStart(5)}MB  ctx-in ${mb(x.inn).padStart(6)}MB  ${x.title}`);
+}

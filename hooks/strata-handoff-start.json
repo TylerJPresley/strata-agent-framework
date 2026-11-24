@@ -1,0 +1,6 @@
+{ "version": "v1", "hooks": [ {
+  "name": "strata-handoff-start",
+  "description": "Add _internal/handoff.md to context when a session starts",
+  "trigger": "SessionStart",
+  "action": { "type": "command", "command": "node ~/.kiro/skills/strata-lifecycle/scripts/hook-helper.mjs handoff" },
+  "timeout": 10 } ] }
