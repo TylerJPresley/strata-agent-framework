@@ -5,7 +5,7 @@ Applies: whenever code touches external input, identity, secrets, personal data,
 
 ## 1. Secure-by-Default Engineering Principles
 
-When designing, implementing, or reviewing code (`planner`, `implementer`, `reviewer`, `security-reviewer`):
+When designing, implementing, or reviewing code (`strata-planner`, `strata-implementer`, `strata-reviewer`, `strata-security-reviewer`):
 
 1. **Least Privilege & Defense in Depth:** Grant the minimum permissions required at every layer (OS, container, database, IAM, API token). Never rely on LAN trust or a single perimeter check.
 2. **Input Validation & Injection Safety:** Validate all external input at the boundary against a strict schema. Quote and escape all shell arguments (prefer array-based `execFile`/`spawn` without a shell); parameterize all database queries; strip control and bidirectional Unicode characters from untrusted file names, tool outputs, and user text before rendering or logging.
@@ -17,7 +17,7 @@ When designing, implementing, or reviewing code (`planner`, `implementer`, `revi
 
 ---
 
-## 2. Standing Security Review Checklist (`reviewer` & `security-reviewer`)
+## 2. Standing Security Review Checklist (`strata-reviewer` & `strata-security-reviewer`)
 
 When reviewing any change that touches permissions, inputs, files, processes, network calls, or dependencies, inspect these nine risk surfaces and report exploitable findings ranked by severity (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`) with `file:line` and a concrete reproduction:
 
@@ -39,7 +39,7 @@ To keep token usage near zero while catching supply-chain, license, and secret r
 
 ### When to Run
 - **Before adopting a new dependency** (quick check of license, advisories, install scripts, and version pinning).
-- **At release preparation**, run once by `security-reviewer` before a project or release is called done.
+- **At release preparation**, run once by `strata-security-reviewer` before a project or release is called done.
 - *(Never put `audit.mjs` inside the per-commit `gate.mjs`, because advisory lookups use the network.)*
 
 ### Execution Procedure
@@ -59,7 +59,7 @@ To keep token usage near zero while catching supply-chain, license, and secret r
    - `1`: One or more findings or open `NEEDS-DECISION` items require review.
    - `2`: Zero findings, but one or more checks printed `NOT RUN` (missing local tool; includes install hint).
    - `3`: Script execution error.
-3. **Judge Flagged Items Only (`security-reviewer`):**
+3. **Judge Flagged Items Only (`strata-security-reviewer`):**
    - Open each flagged `file:line` hit to confirm whether it is a real vulnerability or a false positive/documented policy decision in `AGENTS.md` or `README.md`.
    - Write the risk report to `_internal/plans/<slug>.security.md` with the first line exactly `PASS`, `FAIL`, or `ESCALATE`, followed by findings ranked by severity with `file:line`, source, and date.
    - Return `ESCALATE` for any confirmed high or critical vulnerability.

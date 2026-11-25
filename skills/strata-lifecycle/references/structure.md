@@ -40,10 +40,10 @@ Every project repository separates human governance, agent execution rules, prod
 | Path | Owner / Writer | Purpose |
 |------|----------------|---------|
 | `docs/blueprints/` | `strata-architect` (with Owner approval) | Product specifications in `strata-blueprints` format (`sbp-vision.md`, `sbp-structure.md`, `sbp-detail-<part>.md`, or single blueprint file) plus `questions.md`. Configurable in `AGENTS.md` via `Strata Blueprints Directory:`. |
-| `AGENTS.md` | `documenter` (only on Owner direction) | Agent execution rules: exact build/test/lint commands with flags, tech stack, directory map, conventions, license allow-list (`Licenses allowed:`), and boundaries (`Always`, `Ask first`, `Never`). Links to `CONTRIBUTING.md`. |
-| `CONTRIBUTING.md` | `documenter` (with Owner approval) | Human workflow and governance binding every contributor (human or agent): `## Git` branch model (`gitflow` or `trunk only`), engineer branch pattern (`dev/<engineer>`), PR checklist, testing bar, and dependency rules. |
-| `README.md` | `documenter` | For people: what the project is, installation, and usage. Carries the bold agents pointer line right after the title linking to `AGENTS.md` and `CONTRIBUTING.md`. |
-| `gate.mjs` | `implementer` (reviewed by `reviewer`) | Executable root project quality gate (`node gate.mjs`). Runs typecheck, lint, and tests; exits `0` on pass. Any loosening requires explicit Owner approval. |
+| `AGENTS.md` | `strata-documenter` (only on Owner direction) | Agent execution rules: exact build/test/lint commands with flags, tech stack, directory map, conventions, license allow-list (`Licenses allowed:`), and boundaries (`Always`, `Ask first`, `Never`). Links to `CONTRIBUTING.md`. |
+| `CONTRIBUTING.md` | `strata-documenter` (with Owner approval) | Human workflow and governance binding every contributor (human or agent): `## Git` branch model (`gitflow` or `trunk only`), engineer branch pattern (`dev/<engineer>`), PR checklist, testing bar, and dependency rules. |
+| `README.md` | `strata-documenter` | For people: what the project is, installation, and usage. Carries the bold agents pointer line right after the title linking to `AGENTS.md` and `CONTRIBUTING.md`. |
+| `gate.mjs` | `strata-implementer` (reviewed by `strata-reviewer`) | Executable root project quality gate (`node gate.mjs`). Runs typecheck, lint, and tests; exits `0` on pass. Any loosening requires explicit Owner approval. |
 | `_internal/` | All agents (by write scope) | Gitignored working folder ("the thinking folder") holding cross-session continuity and verification verdicts. Never shipped. |
 
 ## 3. Bootstrapping Missing Project Files

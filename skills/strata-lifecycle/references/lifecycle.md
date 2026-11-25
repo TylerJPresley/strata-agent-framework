@@ -30,7 +30,7 @@ Before designing or building anything non-trivial, fill the blanks in the bluepr
 1. **Frontier Discovery:**
    - Ask only questions whose upstream prerequisites are already settled.
    - Group open questions into rounds using `~/.agents/skills/strata-lifecycle/assets/discovery-round-template.md` (or `~/.agents/skills/strata-lifecycle/assets/questionnaire-template.md` when blocked on an external stakeholder).
-   - Look up codebase and documentation facts yourself (or via `researcher`); ask the Owner only for **intent, direction, and product decisions**.
+   - Look up codebase and documentation facts yourself (or via `strata-researcher`); ask the Owner only for **intent, direction, and product decisions**.
    - Push fuzzy terms until they have a testable definition. When two requirements collide, quote both and ask the Owner to resolve the contradiction.
 2. **Updating the Blueprint (`strata-blueprints`):**
    - `strata-architect` drafts the approved changes into the project's blueprint (`docs/blueprints/sbp-*.md` or single blueprint file) in present tense, affirmative direction, and plain limits.
