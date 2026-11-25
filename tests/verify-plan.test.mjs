@@ -58,3 +58,55 @@ test("--check before the file name still finds the file", () => {
   const r = run("a :: true\n", ["--check"]);
   assert.equal(r.status, 0);
 });
+
+test("--require-review fails when sibling .review.md is missing or FAIL, and passes when PASS", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "verify-plan-rev-"));
+  try {
+    const crit = path.join(dir, "feat.criteria");
+    const rev = path.join(dir, "feat.review.md");
+    const logPath = path.join(dir, "out.log");
+    fs.writeFileSync(crit, "unit :: true\n");
+
+    // 1. Missing review file -> exit 1
+    let r = spawnSync("node", [tool, crit, "--log", logPath, "--require-review"], { encoding: "utf8" });
+    assert.equal(r.status, 1);
+    assert.match(r.stdout, /FAIL {2}review-verdict {2}\[missing/);
+
+    // 2. FAIL review file -> exit 1
+    fs.writeFileSync(rev, "FAIL\n- P1 broken edge case\n");
+    r = spawnSync("node", [tool, crit, "--log", logPath, "--require-review"], { encoding: "utf8" });
+    assert.equal(r.status, 1);
+    assert.match(r.stdout, /first line is "FAIL", expected "PASS"/);
+
+    // 3. PASS review file -> exit 0
+    fs.writeFileSync(rev, "PASS\n- All criteria and adversarial probes verified\n");
+    r = spawnSync("node", [tool, crit, "--log", logPath, "--require-review"], { encoding: "utf8" });
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /PASS {2}review-verdict/);
+
+    // 4. Failing criterion + PASS review file -> exit 1
+    fs.writeFileSync(crit, "unit :: exit 2\n");
+    r = spawnSync("node", [tool, crit, "--log", logPath, "--require-review"], { encoding: "utf8" });
+    assert.equal(r.status, 1);
+    assert.match(r.stdout, /FAIL {2}unit/);
+    assert.match(r.stdout, /PASS {2}review-verdict/);
+
+    // 5. --check --require-review validates both criteria syntax and review verdict
+    r = spawnSync("node", [tool, crit, "--check", "--require-review"], { encoding: "utf8" });
+    assert.equal(r.status, 0);
+    fs.writeFileSync(rev, "FAIL\n");
+    r = spawnSync("node", [tool, crit, "--check", "--require-review"], { encoding: "utf8" });
+    assert.equal(r.status, 1);
+
+    // 6. Bare plan slug resolves _internal/plans/<slug>.criteria
+    const plansDir = path.join(dir, "_internal", "plans");
+    fs.mkdirSync(plansDir, { recursive: true });
+    fs.writeFileSync(path.join(plansDir, "my-slug.criteria"), "ok :: true\n");
+    fs.writeFileSync(path.join(plansDir, "my-slug.review.md"), "PASS\n");
+    r = spawnSync("node", [tool, "my-slug", "--log", logPath, "--require-review"], { cwd: dir, encoding: "utf8" });
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /PASS {2}review-verdict/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

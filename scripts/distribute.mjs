@@ -5,7 +5,7 @@
 //   - claude        (~/.claude)          -> CLAUDE.md (managed block), agents/strata-*.md, skills/strata-*/
 //   - qwen          (~/.qwen)            -> QWEN.md (managed block), agents/strata-*.md, skills/strata-*/
 //   - gemini        (~/.gemini)          -> GEMINI.md (managed block), config/skills/strata-*/
-//   - hermes        (~/.hermes)          -> AGENTS.md (managed block), skills/strata-*/
+//   - hermes        (~/.hermes)          -> SOUL.md (managed block), skills/strata-*/
 //   - codex         (~/.codex)           -> AGENTS.md (managed block), skills/strata-*/
 //   - opencode      (~/.config/opencode) -> AGENTS.md (managed block), agents/strata-*.md, skills/strata-*/
 //   - agents        (~/.agents)          -> optional shared store (steering/, agents/, skills/, hooks/)
@@ -49,7 +49,7 @@ const LEGACY_STEERING = new Set([
 ]);
 
 const LEGACY_AGENTS = new Set([
-  "director", "documenter", "implementer", "planner", "researcher", "reviewer", "security-reviewer", "strata"
+  "director", "documenter", "implementer", "planner", "researcher", "reviewer", "security-reviewer", "strata", "strata-keeper"
 ]);
 
 const LEGACY_HOOKS = new Set(["handoff-start.json"]);
@@ -250,7 +250,7 @@ function compileKiroAgentJson(mdPath, kiroTemplateJsonPath, targetSkillsPrefix) 
         const extras = [];
         for (const m of rule.match) {
           if (LEGACY_AGENTS.has(m)) {
-            extras.push(m === "strata" ? "strata-keeper" : `strata-${m}`);
+            extras.push(m === "strata" || m === "strata-keeper" ? "strata-architect" : `strata-${m}`);
           }
         }
         for (const e of extras) {
@@ -345,8 +345,9 @@ function layoutSpec(layout) {
     case "opencode":
       return { layout, rootDoc: "AGENTS.md", skillSubdir: "skills", agentSubdir: "agents" };
     case "hermes":
+      return { layout: "hermes", rootDoc: "SOUL.md", skillSubdir: "skills" };
     case "codex":
-      return { layout, rootDoc: "AGENTS.md", skillSubdir: "skills" };
+      return { layout: "codex", rootDoc: "AGENTS.md", skillSubdir: "skills" };
     case "agents":
     case "agents-global":
     default:

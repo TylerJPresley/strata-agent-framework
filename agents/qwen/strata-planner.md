@@ -18,7 +18,7 @@ Writes: `_internal/plans/<slug>.md`, `_internal/plans/<slug>.criteria`, and `_in
 
 Mandatory Gates & Workflow:
 1. **Before writing or revising any plan:** You MUST call `read_file` on:
-   - `~/.agents/skills/strata-lifecycle/references/lifecycle.md` (Section 3: Stage 2 Planning & Systems Mapping)
+   - `~/.agents/skills/strata-lifecycle/references/lifecycle.md` (Section 3: Stage 2 Planning)
    - `~/.agents/skills/strata-lifecycle/assets/plan-template.md` and `~/.agents/skills/strata-lifecycle/assets/ears-gwt.md`
    - The matching domain section of `~/.agents/skills/strata-lifecycle/references/engineering-craft.md`
 2. **Zero Scope Inflation (`YAGNI`):**

@@ -2,7 +2,7 @@
 
 **AI agents:** start with [AGENTS.md](AGENTS.md) for commands, project map and rules.
 
-Version: `0.1.3` · License: [MIT](LICENSE)
+Version: `0.1.4` · License: [MIT](LICENSE)
 
 Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.
 
@@ -13,7 +13,7 @@ Harness-agnostic framework for AI coding agents—3-ring progressive context, li
   - [1. Three Rings of Exposure & Mandatory Read Gates](#1-three-rings-of-exposure--mandatory-read-gates)
   - [2. Spec-Driven Development with Strata Blueprints](#2-spec-driven-development-with-strata-blueprints)
   - [3. The Single Evidence-Gated Development Loop](#3-the-single-evidence-gated-development-loop)
-  - [4. Strict Role Separation (Builders Never Grade Their Own Homework)](#4-strict-role-separation-builders-never-grade-their-own-homework)
+  - [4. Strict Role Separation & Unpoisoned Review Judging](#4-strict-role-separation--unpoisoned-review-judging)
   - [5. Disk Memory (`_internal/`) & Deterministic Scripts](#5-disk-memory-_internal--deterministic-scripts)
 - [Supported Tools & Native Layouts](#supported-tools--native-layouts)
 - [Install](#install)
@@ -26,19 +26,25 @@ Harness-agnostic framework for AI coding agents—3-ring progressive context, li
 
 ## Why AI Coding Agents Drift—and How Strata Fixes It
 
-AI coding agents start fast and break down as a project grows. You add more rules to `AGENTS.md` or `CLAUDE.md`, keep prompting in long sessions, and switch between Claude Code, Gemini CLI, Kiro, Antigravity, or Codex. Soon the cracks appear:
+Strata was born out of two real-world frustrations:
+1. **The local-model harness gap:** Commercial cloud harnesses (Claude Code, Kiro, Antigravity) rely on thousands of words of proprietary system-prompt engineering under the hood. When you point a lighter open harness (`pi.dev`, `opencode`, `qwen-code`, `codex`) at a local or self-hosted model, it lacks that foundational guidance—dumping massive walls of unreadable text, hallucinating tool flags, or wandering into unrequested refactors.
+2. **The plan-drift & self-grading problem (even on frontier cloud models):** Even top-tier cloud models drift from the plan during long sessions. Left in a single context window, an agent will guess unstated requirements, over-engineer speculative abstractions, weaken a failing test assertion to get green, and slam the human with a 200-line victory lap that hides what was actually skipped.
 
-- **Attention dilution:** Once always-on instructions pass ~3,000 tokens, models start selectively dropping constraints.
+Whether you are running a local model on your own hardware or switching between Kiro, Claude Code, Qwen Code, Antigravity, Gemini CLI, and Pi, the same failure modes appear as a project grows:
+
+- **Walls of text & scope inflation:** Without strict response-length calibration and `YAGNI` boundaries, agents bury the human in filler and build features nobody asked for.
+- **Attention dilution:** Once always-on instructions pass ~3,000–4,000 tokens, models start selectively dropping constraints.
 - **Unpinned specs:** What looks like a coding bug is almost always an unstated requirement the agent guessed silently.
-- **Self-graded homework:** An agent tasked with both writing and verifying code will happily pass unit tests with convoluted logic—or weaken an existing test assertion just to get a green check.
+- **Self-graded homework:** An agent tasked with both writing and verifying code will happily pass unit tests with convoluted logic—or edit an existing test just to get a green check.
 - **Stateless amnesia:** When architectural decisions, plans, and lessons live in chat history, every context reset or harness switch wipes the slate clean.
 
-**You cannot prompt-engineer your way out of statelessness and attention dilution. Strata replaces prompt hope with artifact and constraint engineering:**
+**You cannot prompt-engineer your way out of statelessness, self-grading bias, and attention dilution. Strata pairs frontier-grade foundational harness guidance with artifact and constraint engineering:**
 
-1. **Keep always-on context razor-thin (~3k tokens)** and gate deep methodology behind **Mandatory Read Gates** that load only when needed.
-2. **Pin intent in a living 3-layer blueprint** ([Strata Blueprints](https://stratablueprints.com)) before writing code—agents never guess an unstated requirement (`Not supplied:`), and a deterministic impact linter traces every spec change down to the exact rules it reopens.
-3. **Separate the spec keeper, the planner, the builder, and the verifier** into isolated specialist subagents with hard write boundaries.
-4. **Move state out of chat and onto disk (`_internal/`)** while shifting every countable, repeatable check out of model tokens and into zero-dependency Node.js (`.mjs`) verification scripts.
+1. **Bring frontier-grade foundational discipline to every harness:** Provide turn classification, parallel tool batching, zero-fluff human-readable replies (`Done D1 / Checked C1 / Not done N1`), and native per-app subagent tool schemas (`agents/{kiro,pi,claude,qwen,opencode}`) so local and cloud models alike stay sharp and concise.
+2. **Keep always-on context razor-thin (~4k tokens)** and gate deep methodology behind **Mandatory Read Gates** that load only when entering a workflow stage.
+3. **Pin intent in a living 3-layer blueprint** ([Strata Blueprints](https://stratablueprints.com)) before writing code—agents never guess an unstated requirement (`Not supplied:`), and a deterministic impact linter traces every spec change down to the exact rules it reopens.
+4. **Enforce independent fresh-context judging:** Separate the blueprint architect (`strata-architect`), the planner (`strata-planner`), the builder (`strata-implementer`), and the verifier (`strata-reviewer`, `strata-security-reviewer`) into isolated specialist subagents with hard write boundaries, presume-wrong test auditing, and dead-switch grepping.
+5. **Move state out of chat and onto disk (`_internal/`)** while shifting every countable, repeatable check out of model tokens and into zero-dependency Node.js (`.mjs`) verification scripts (`verify-plan.mjs`, `test-diff.mjs`, `audit.mjs`, `gate.mjs`).
 
 ---
 
@@ -67,33 +73,31 @@ Unknowns are explicitly marked `Not supplied:`—agents are forbidden from guess
 
 ### 3. The Single Evidence-Gated Development Loop
 
-Every task flows through one predictable loop ([`skills/strata-lifecycle/references/lifecycle.md`](skills/strata-lifecycle/references/lifecycle.md)):
+Planned work moves through five evidence-gated stages. Depending on the harness and task, you or your agent (e.g., Antigravity, Claude Code, Pi) can enter directly at **Stage 1 (Discovery)**—or connect through the situational **Orchestration & Triage** process (Pillar 4) when coordinating multi-part work or fast-path fixes ([`skills/strata-lifecycle/references/lifecycle.md`](skills/strata-lifecycle/references/lifecycle.md)):
 
 ```mermaid
 flowchart LR
-    T["Triage\n(Small vs. Planned)"] -->|Small Work| Fast["Fast Path\nSingle check + commit"]
-    T -->|Planned Feature| S1["1. Discovery & Blueprint\n(strata-keeper)"]
-    S1 --> S2["2. Systems Map & Plan\n(strata-planner)"]
-    S2 --> S3["3. Test-First Build\n(strata-implementer)"]
-    S3 --> S4["4. Independent Review\n(strata-reviewer / security)"]
-    S4 -->|PASS| S5["5. Close-Out & Squash-Merge\n(strata-director / documenter)"]
+    S1["1. Discovery\n(strata-architect)"] --> S2["2. Planning\n(strata-planner)"]
+    S2 --> S3["3. Implementation\n(strata-implementer)"]
+    S3 --> S4["4. Review\n(strata-reviewer / strata-security-reviewer)"]
+    S4 -->|PASS| S5["5. Documentation\n(strata-documenter)"]
     S4 -->|FAIL / 2x Strike| S2
 ```
 
-- **Stage 1 (Discovery & Grilling):** `strata-keeper` interviews the Owner for product decisions, updates the blueprint, and runs `strata-blueprints-lint.mjs`.
-- **Stage 2 (Systems Mapping & Pinned Planning):** `strata-planner` maps callers, second-order effects, and predicted file touches, then writes `_internal/plans/<slug>.md` and runnable acceptance criteria (`_internal/plans/<slug>.criteria`). **Every decision and edge case is pinned in the plan; the Implementer decides nothing.**
-- **Stage 3 (Red → Green → Mutate Build):** On `feature/<slug>`, `strata-implementer` writes the failing test first, builds the code to pass, mutates production logic to prove the test actually catches regressions, and commits at each logical seam after `node gate.mjs` and `verify-plan.mjs` pass. If an approach fails twice (**Two-Strike Rule**), execution stops for re-planning.
-- **Stage 4 (Fresh-Context Verification):** `strata-reviewer` audits the diff in a fresh context window, runs `test-diff.mjs` to ensure existing tests were not silently weakened, verifies `gate.mjs` was not loosened, and runs real-environment checks in an isolated `_internal/scratch/` sandbox.
-- **Stage 5 (Close-Out & Safe Git Integration):** `strata-documenter` updates docs, and `strata-director` archives the plan, updates `_internal/handoff.md`, squash-merges `feature/<slug>`, and pushes via `push.mjs`.
+- **Stage 1 (Discovery — `strata-architect`):** Interviews the Owner for product decisions, updates the blueprint, and runs `strata-blueprints-lint.mjs`.
+- **Stage 2 (Planning — `strata-planner` + Pre-Build Red-Team):** Maps callers, second-order effects, and predicted file touches, then writes `_internal/plans/<slug>.md` and runnable acceptance criteria (`_internal/plans/<slug>.criteria`). **Every decision and edge case is pinned in the plan; the Implementer decides nothing.** For multi-seam or high-risk plans, `strata-reviewer` red-teams the plan in fresh context before coding starts to catch unpinned decisions, fakeable `.criteria`, or `YAGNI` bloat.
+- **Stage 3 (Implementation — `strata-implementer`):** On `feature/<slug>`, executes vertical tracer-bullet TDD (`RED → GREEN → Mutate`) — writing the failing test first, building the code to pass, mutating production logic to prove the test catches regressions, and committing at each logical seam after `node gate.mjs` and `verify-plan.mjs` pass. If an approach fails twice (**Two-Strike Rule**), execution stops for re-planning.
+- **Stage 4 (Review — `strata-reviewer` & `strata-security-reviewer` as the Independent Judge):** Global context is an asset in Stages `1–3` and poison at Stage 4. Whether Stages `1–3` ran directly in the main session or via subagents, Stage 4 spawns `strata-reviewer` in a fresh subagent context with a **blind-artifact brief** (only blueprint path, plan/criteria paths, and `git diff`—zero builder narrative). `strata-reviewer` runs (A) Mechanical & Spec/Criteria compliance (`verify-plan.mjs`, `gate.mjs`, `test-diff.mjs`, and `gate.mjs` loosening checks) followed by (B) Code Quality, presume-wrong test auditing, dead-switch call-site grepping, and **active adversarial fault-injection probes** in `_internal/scratch/`.
+- **Stage 5 (Documentation — `strata-documenter`):** Updates `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, and `docs/` to match what was built.
 
-### 4. Strict Role Separation (Builders Never Grade Their Own Homework)
+### 4. Strict Role Separation & Unpoisoned Review Judging
 
-One global specialist roster ([`agents/`](agents/)) governs every project with strict write isolation ([`skills/strata-lifecycle/references/roles-and-standing-rules.md`](skills/strata-lifecycle/references/roles-and-standing-rules.md)):
+One global specialist roster ([`agents/`](agents/)) governs every project with strict write isolation ([`skills/strata-lifecycle/references/roles-and-standing-rules.md`](skills/strata-lifecycle/references/roles-and-standing-rules.md)). **`strata-reviewer` + the deterministic `.mjs` scripts ARE the judge:** the builder or orchestrator never edits `<slug>.review.md` and cannot unilaterally dismiss a `FAIL` finding (it must either fix the defect, pass a cold `file:line` citation back to `strata-reviewer` so *the reviewer* flips `<slug>.review.md` to `PASS`, or escalate a `CONFLICT` to the Owner after at most 3 rounds):
 
 | Specialist | Role | Allowed Writes | Hard Denies |
 |------------|------|----------------|-------------|
 | [`strata-director`](agents/prompts/strata-director.md) | Team lead & router | `_internal/handoff.md`, `decisions.md`, `lessons.md`, `plans/archive/**` | Source code, tests, blueprints, repo docs |
-| [`strata-keeper`](agents/prompts/strata-keeper.md) | Blueprint guardian | `**/sbp-*.md`, `**/*blueprint*.md`, `**/questions.md` | Never guesses `Not supplied:`, no code/tests/plans |
+| [`strata-architect`](agents/prompts/strata-architect.md) | Blueprint architect | `**/sbp-*.md`, `**/*blueprint*.md`, `**/questions.md` | Never guesses `Not supplied:`, no code/tests/plans |
 | [`strata-planner`](agents/prompts/strata-planner.md) | Systems designer | `_internal/plans/<slug>.md`, `<slug>.criteria`, `proposals/**` | No shell execution, no code/test/doc edits |
 | [`strata-implementer`](agents/prompts/strata-implementer.md) | Test-first builder | Source code, tests, `gate.mjs`, commits on `feature/<slug>` | Blueprints, `AGENTS.md`, `README.md`, `*.review.md` |
 | [`strata-reviewer`](agents/prompts/strata-reviewer.md) | Independent verifier | `_internal/plans/<slug>.review.md`, `_internal/scratch/**` | Read-only on source, tests, blueprints, plans, docs |
@@ -124,11 +128,11 @@ Continuity lives on disk in `<project>/_internal/` (gitignored, never in chat or
 | **`gemini`** | `~/.gemini` | `GEMINI.md` (managed `<!-- STRATA -->` bottom block) | — | `config/skills/strata-*/` | — |
 | **`opencode`** | `~/.config/opencode` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | `agents/opencode/strata-*.md` → `~/.config/opencode/agents/strata-*.md` (7 specialists) | `skills/strata-*/` | — |
 | **`codex`** | `~/.codex` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | — | `skills/strata-*/` | — |
-| **`hermes`** | `~/.hermes` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | — | `skills/strata-*/` | — |
+| **`hermes`** | `~/.hermes` | `SOUL.md` (managed `<!-- STRATA -->` bottom block) | — (uses `delegate_task`) | `skills/strata-*/` | — |
 | **`agents-global`** | `~/.agents` | `steering/strata-*.md` (optional shared store) | `agents/prompts/strata-*.md` | `skills/strata-*/` | `hooks/strata-handoff-start.json` |
 | **Custom (`--add`)** | `<dir>[:<layout>]` | Inferred or specified layout (`pi`, `claude`, `qwen`, `kiro`, `gemini`, `codex`, `opencode`, `agents`) | Per layout | Per layout | Per layout |
 
-- **Non-destructive root file registration:** For tools that use a single root instruction file (`AGENTS.md`, `CLAUDE.md`, `QWEN.md`, `GEMINI.md`), `distribute.mjs` appends and updates a fenced `<!-- STRATA:START --> ... <!-- STRATA:END -->` block at the bottom of the file, preserving any custom rules or project commands above it. Unchecking the tool cleanly removes only that block.
+- **Non-destructive root file registration:** For tools that use a single root instruction file (`AGENTS.md`, `CLAUDE.md`, `QWEN.md`, `GEMINI.md`, `SOUL.md`), `distribute.mjs` appends and updates a fenced `<!-- STRATA:START --> ... <!-- STRATA:END -->` block at the bottom of the file, preserving any custom rules or identity text above it. Unchecking the tool cleanly removes only that block.
 
 ---
 
@@ -192,7 +196,7 @@ node ~/.agents/skills/strata-blueprints/scripts/strata-blueprints-lint.mjs --imp
 
 - **[`skills/strata-lifecycle/references/vision.md`](skills/strata-lifecycle/references/vision.md)** — The problem statement, the 7 Core Assertions (`A1`–`A7`), and the Rings of Exposure.
 - **[`skills/strata-lifecycle/references/structure.md`](skills/strata-lifecycle/references/structure.md)** — Anatomy of `~/.agents`, required project repository files (`AGENTS.md`, `CONTRIBUTING.md`, `README.md`, `docs/blueprints/`, `gate.mjs`), `_internal/` working folder layout, and script reference table.
-- **[`skills/strata-lifecycle/references/lifecycle.md`](skills/strata-lifecycle/references/lifecycle.md)** — The single development loop from Triage through Discovery, Planning, Test-First Implementation, Independent Verification, and Feature Close-Out.
+- **[`skills/strata-lifecycle/references/lifecycle.md`](skills/strata-lifecycle/references/lifecycle.md)** — The single development loop from Triage through Discovery, Planning, Implementation, Review, and Documentation.
 - **[`skills/strata-lifecycle/references/roles-and-standing-rules.md`](skills/strata-lifecycle/references/roles-and-standing-rules.md)** — Specialist write scopes, the 7-Part Specialist Brief, universal standing rules, `CONFLICT` protocol, structured reply format (`D1/C1/A1/P1/N1`), context handoffs, research cache, and retrospective lesson promotion.
 - **[`skills/strata-security-audit/references/security-and-audit.md`](skills/strata-security-audit/references/security-and-audit.md)** — Secure-by-default principles, 9-point security review checklist, and mechanical dependency/license/secret auditing via `skills/strata-security-audit/scripts/audit.mjs`.
 - **[`skills/strata-lifecycle/references/engineering-craft.md`](skills/strata-lifecycle/references/engineering-craft.md)** — Domain engineering checklists (Requirements/EARS, Architecture, Backend/APIs, Data, Systems/CLI, Web/Frontend, Cloud Ops, Reliability/SRE, Product).
@@ -203,7 +207,7 @@ node ~/.agents/skills/strata-blueprints/scripts/strata-blueprints-lint.mjs --imp
 To avoid skill-routing degradation (`A5`), global skills are consolidated into 6 distinct entry points:
 
 1. **[`strata-blueprints`](skills/strata-blueprints/SKILL.md)** — Author, lint, condense, publish, and build from 3-layer Strata Blueprints (`Vision`, `Structure`, `Detail`).
-2. **[`strata-lifecycle`](skills/strata-lifecycle/SKILL.md)** — Master router for project file bootstrap, triage, discovery/grilling, feature planning, test-first builds, independent review, and session handoffs.
+2. **[`strata-lifecycle`](skills/strata-lifecycle/SKILL.md)** — Master router for project file bootstrap, triage, discovery, feature planning, test-first builds, independent review, and session handoffs.
 3. **[`strata-security-audit`](skills/strata-security-audit/SKILL.md)** — Deterministic dependency, license, secret, and security review workflow (`skills/strata-security-audit/scripts/audit.mjs` + `skills/strata-security-audit/references/security-and-audit.md`).
 4. **[`strata-diagnosing-bugs`](skills/strata-diagnosing-bugs/SKILL.md)** — Fast-feedback reproduction, root-cause hypothesis testing, and regression test verification.
 5. **[`strata-optimization-loop`](skills/strata-optimization-loop/SKILL.md)** — Measure-change-verify loop for moving a single metric toward a target at minimum cost.
@@ -211,7 +215,7 @@ To avoid skill-routing degradation (`A5`), global skills are consolidated into 6
 
 ## Quality Gate
 
-Run the repository quality gate (steering/skill linter + 193 deterministic script unit tests in `tests/`) from the repo root:
+Run the repository quality gate (steering/skill linter + 196 deterministic script unit tests in `tests/`) from the repo root:
 
 ```bash
 node gate.mjs

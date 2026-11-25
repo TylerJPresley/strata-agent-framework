@@ -2,6 +2,8 @@
 
 Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.
 
+**The Why:** Give every coding harness—especially lighter harnesses driving local models (`pi.dev`, `qwen-code`, `opencode`) as well as cloud harnesses (`kiro`, `claude`, `antigravity`, `gemini`)—frontier-grade execution and anti-wall-of-text communication guidance, paired with independent fresh-context judging and deterministic script gates so models stay strictly on plan instead of dumping unverified walls of text on the human.
+
 Overview for people: [README.md](README.md).
 
 ## Commands

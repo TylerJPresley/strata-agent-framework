@@ -101,11 +101,18 @@ test("--targets selects exact targets and uninstalls previously deployed targets
   fs.mkdirSync(path.join(home, ".claude"), { recursive: true });
   fs.mkdirSync(path.join(home, ".gemini"), { recursive: true });
   fs.mkdirSync(path.join(home, ".qwen"), { recursive: true });
+  fs.mkdirSync(path.join(home, ".hermes"), { recursive: true });
+  fs.writeFileSync(path.join(home, ".hermes", "SOUL.md"), "You are Hermes Agent, built by Nous Research.\n");
 
-  const r1 = runDist(home, ["--targets", "claude,gemini,qwen"]);
+  const r1 = runDist(home, ["--targets", "claude,gemini,qwen,hermes"]);
   assert.equal(r1.status, 0, r1.stdout + r1.stderr);
   assert.ok(fs.existsSync(path.join(home, ".gemini", "GEMINI.md")));
   assert.ok(fs.existsSync(path.join(home, ".qwen", "QWEN.md")));
+  assert.ok(fs.existsSync(path.join(home, ".hermes", "SOUL.md")));
+  const hermesSoul = fs.readFileSync(path.join(home, ".hermes", "SOUL.md"), "utf8");
+  assert.match(hermesSoul, /You are Hermes Agent, built by Nous Research\./);
+  assert.match(hermesSoul, /<!-- STRATA:START -->/);
+  assert.match(hermesSoul, /~\/\.hermes\/skills\/strata-lifecycle/);
   const qwenMd = fs.readFileSync(path.join(home, ".qwen", "QWEN.md"), "utf8");
   assert.match(qwenMd, /~\/\.qwen\/skills\/strata-lifecycle/);
   assert.ok(fs.existsSync(path.join(home, ".qwen", "agents", "strata-reviewer.md")));
@@ -114,11 +121,15 @@ test("--targets selects exact targets and uninstalls previously deployed targets
   assert.match(qwenReviewer, /- grep_search/);
   assert.ok(!fs.existsSync(path.join(home, ".qwen", "agents", "strata-director.md")));
 
-  // Now omit gemini and qwen -> should automatically uninstall gemini and qwen
+  // Now omit gemini, qwen, and hermes -> should automatically uninstall them and restore Hermes SOUL.md
   const r2 = runDist(home, ["--targets", "claude"]);
   assert.equal(r2.status, 0, r2.stdout + r2.stderr);
   assert.ok(!fs.existsSync(path.join(home, ".gemini", "GEMINI.md")));
   assert.ok(!fs.existsSync(path.join(home, ".gemini", ".strata-manifest.json")));
   assert.ok(!fs.existsSync(path.join(home, ".qwen", "QWEN.md")));
   assert.ok(!fs.existsSync(path.join(home, ".qwen", ".strata-manifest.json")));
+  assert.ok(!fs.existsSync(path.join(home, ".hermes", ".strata-manifest.json")));
+  const restoredSoul = fs.readFileSync(path.join(home, ".hermes", "SOUL.md"), "utf8");
+  assert.match(restoredSoul, /You are Hermes Agent, built by Nous Research\./);
+  assert.doesNotMatch(restoredSoul, /<!-- STRATA:START -->/);
 });

@@ -1,6 +1,6 @@
 ---
 name: strata-security-audit
-description: "Audit a project, code change, or new dependency for security vulnerabilities, trust-boundary risks, secrets, and license compliance using deterministic script facts (`audit.mjs`) and the standing security review checklist."
+description: "Audit dependencies, secrets, licenses, and code security. Run deterministic script checks (`audit.mjs`) and the standing security review checklist before adopting a new dependency, reviewing security-sensitive changes, or preparing a release."
 ---
 
 # Security & Dependency Audit

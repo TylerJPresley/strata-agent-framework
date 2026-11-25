@@ -16,7 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const LEGACY_AGENTS = new Set([
-  "director", "documenter", "implementer", "planner", "researcher", "reviewer", "security-reviewer", "strata"
+  "director", "documenter", "implementer", "planner", "researcher", "reviewer", "security-reviewer", "strata", "strata-keeper"
 ]);
 
 const PI_TO_QWEN_TOOLS = {
@@ -141,7 +141,7 @@ export function renderKiroAgentJson(parsed, existingJsonPath) {
         const extras = [];
         for (const m of rule.match) {
           if (LEGACY_AGENTS.has(m)) {
-            extras.push(m === "strata" ? "strata-keeper" : `strata-${m}`);
+            extras.push(m === "strata" || m === "strata-keeper" ? "strata-architect" : `strata-${m}`);
           }
         }
         for (const e of extras) {

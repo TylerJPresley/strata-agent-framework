@@ -5,11 +5,11 @@ Applies: when maintaining `~/.agents`, bootstrapping or auditing a project repos
 
 ## 1. Layout of the Strata Agent Framework & Deployed Harnesses
 
-Strata Agent Framework organizes all capabilities into self-contained skills (`skills/strata-*/`), specialist subagents (`agents/strata-*.md`), and always-on Ring 1 conductors (`steering/strata-*.md` for Kiro; a managed `<!-- STRATA:START --> ... <!-- STRATA:END -->` block in `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` for Pi, Claude Code, Gemini CLI, OpenCode, Codex, and Hermes).
+Strata Agent Framework organizes all capabilities into self-contained skills (`skills/strata-*/`), specialist subagents (`agents/strata-*.md`), and always-on Ring 1 conductors (`steering/strata-*.md` for Kiro; a managed `<!-- STRATA:START --> ... <!-- STRATA:END -->` block in `AGENTS.md`, `CLAUDE.md`, `QWEN.md`, `GEMINI.md`, or `SOUL.md` for Pi, Claude Code, Qwen Code, Gemini CLI, OpenCode, Codex, and Hermes).
 
 ```text
 strata-agent-framework/
-├── templates/AGENTS.md # Compiled Ring 1 conductor block (deployed into AGENTS.md / CLAUDE.md / QWEN.md / GEMINI.md)
+├── templates/AGENTS.md # Compiled Ring 1 conductor block (deployed into AGENTS.md / CLAUDE.md / QWEN.md / GEMINI.md / SOUL.md)
 ├── steering/           # Ring 1: 18 atomic always-on rules for Kiro (Intent / Applies + Mandatory Read Gates)
 ├── agents/             # Ring 2: Per-app subagent definitions compiled from agents/prompts/ by scripts/sync-agents.mjs
 │   ├── prompts/        # Canonical prompt sources (Director + 7 Specialists)
@@ -39,7 +39,7 @@ Every project repository separates human governance, agent execution rules, prod
 
 | Path | Owner / Writer | Purpose |
 |------|----------------|---------|
-| `docs/blueprints/` | `strata` (with Owner approval) | Product specifications in `strata-blueprints` format (`sbp-vision.md`, `sbp-structure.md`, `sbp-detail-<part>.md`, or single blueprint file) plus `questions.md`. Configurable in `AGENTS.md` via `Strata Blueprints Directory:`. |
+| `docs/blueprints/` | `strata-architect` (with Owner approval) | Product specifications in `strata-blueprints` format (`sbp-vision.md`, `sbp-structure.md`, `sbp-detail-<part>.md`, or single blueprint file) plus `questions.md`. Configurable in `AGENTS.md` via `Strata Blueprints Directory:`. |
 | `AGENTS.md` | `documenter` (only on Owner direction) | Agent execution rules: exact build/test/lint commands with flags, tech stack, directory map, conventions, license allow-list (`Licenses allowed:`), and boundaries (`Always`, `Ask first`, `Never`). Links to `CONTRIBUTING.md`. |
 | `CONTRIBUTING.md` | `documenter` (with Owner approval) | Human workflow and governance binding every contributor (human or agent): `## Git` branch model (`gitflow` or `trunk only`), engineer branch pattern (`dev/<engineer>`), PR checklist, testing bar, and dependency rules. |
 | `README.md` | `documenter` | For people: what the project is, installation, and usage. Carries the bold agents pointer line right after the title linking to `AGENTS.md` and `CONTRIBUTING.md`. |
