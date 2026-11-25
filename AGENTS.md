@@ -13,7 +13,7 @@ Overview for people: [README.md](README.md).
 - Distribute (interactive checklist): `node scripts/distribute.mjs`
 - Distribute (non-interactive / saved targets): `node scripts/distribute.mjs --yes`
 - Distribute (verify deployed targets): `node scripts/distribute.mjs --check`
-- Sync embedded `strata-blueprints`: `node scripts/sync-skill.mjs ../strata-bp/skills/strata-blueprints --target ./skills`
+- Sync embedded `strata-blueprints`: `node scripts/sync-skill.mjs ../strata-blueprints/skills/strata-blueprints --target ./skills`
 
 Pre-flight: run `node gate.mjs` before every commit, and `node scripts/distribute.mjs --check` after distributing.
 

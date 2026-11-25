@@ -2,7 +2,7 @@
 
 **AI agents:** start with [AGENTS.md](AGENTS.md) for commands, project map and rules.
 
-Version: `0.1.1` · License: [MIT](LICENSE)
+Version: `0.1.2` · License: [MIT](LICENSE)
 
 Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.
 
@@ -159,7 +159,7 @@ node scripts/distribute.mjs --yes
 Unchecking a previously deployed harness (or passing `--remove ~/.config/voidrift`) automatically reads its `.strata-manifest.json` and cleanly uninstalls only the Strata-managed files while leaving your other configs, MCP servers, and runtime state untouched.
 
 > [!NOTE]
-> **Embedded `strata-blueprints` Skill (`v0.3.0`):** This repository ships with [`strata-blueprints`](skills/strata-blueprints/SKILL.md) `0.3.0` embedded out of the box. If you maintain a local checkout of the standalone [`strata-blueprints`](https://github.com/TylerJPresley/strata-blueprints) repository, `node scripts/distribute.mjs` automatically syncs from `../strata-bp/skills/strata-blueprints` (or `STRATA_BP_SOURCE`), or you can sync manually with:
+> **Embedded `strata-blueprints` Skill (`v0.4.0`):** This repository ships with [`strata-blueprints`](skills/strata-blueprints/SKILL.md) `0.4.0` embedded out of the box. If you maintain a local checkout of the standalone [`strata-blueprints`](https://github.com/TylerJPresley/strata-blueprints) repository, `node scripts/distribute.mjs` automatically syncs from `../strata-blueprints/skills/strata-blueprints` (or `STRATA_BP_SOURCE`), or you can sync manually with:
 > `node scripts/sync-skill.mjs <path-to-strata-blueprints>/skills/strata-blueprints --target ./skills`
 
 ## Usage

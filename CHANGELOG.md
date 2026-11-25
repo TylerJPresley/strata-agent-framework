@@ -2,6 +2,13 @@
 
 This changelog records releases of Strata Agent Framework. The `Version:` and `Embedded Strata Blueprints:` lines of `skills/strata-lifecycle/references/vision.md` are the single source of the framework version and the embedded `strata-blueprints` version, and the owner chooses release tags.
 
+## 0.1.2
+
+Update embedded **Strata Blueprints** to **`0.4.0`** and auto-detect `../strata-blueprints/skills/strata-blueprints` in `scripts/distribute.mjs`.
+
+- **Embedded Strata Blueprints `0.4.0`:** Synced all 23 files in `skills/strata-blueprints/` from upstream `strata-blueprints` `0.4.0` (guides, layer templates, examples, `strata-blueprints-lint.mjs`, and `strata-blueprints.mjs`).
+- **Upstream Sync Path:** Updated `scripts/distribute.mjs` and `AGENTS.md` / `README.md` to check `../strata-blueprints/skills/strata-blueprints` first.
+
 ## 0.1.1
 
 Separate repository development `AGENTS.md` from the deployed global Ring 1 template (`templates/AGENTS.md`) and refine default-agent enhancement vs. Kiro permission-boundary fan-out.

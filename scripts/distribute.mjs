@@ -123,7 +123,10 @@ function getSourceEmbeddedMeta() {
 }
 
 function syncEmbeddedStrataBlueprints() {
-  const upstream = process.env.STRATA_BP_SOURCE || path.resolve(source, "..", "strata-bp", "skills", "strata-blueprints");
+  const defaultUpstream = fs.existsSync(path.resolve(source, "..", "strata-blueprints", "skills", "strata-blueprints", "SKILL.md"))
+    ? path.resolve(source, "..", "strata-blueprints", "skills", "strata-blueprints")
+    : path.resolve(source, "..", "strata-bp", "skills", "strata-blueprints");
+  const upstream = process.env.STRATA_BP_SOURCE || defaultUpstream;
   const syncScript = path.join(source, "scripts", "sync-skill.mjs");
   if (!fs.existsSync(path.join(upstream, "SKILL.md")) || !fs.existsSync(syncScript)) return true;
   const targetDir = path.join(source, "skills");
