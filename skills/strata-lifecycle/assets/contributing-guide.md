@@ -1,6 +1,6 @@
 # CONTRIBUTING.md guide
 
-For people: etiquette, governance, pull request workflow. Welcoming and explanatory, with short imperative rules. Shared Markdown rules: `SKILL.md`.
+For people: etiquette, governance, pull request workflow. Welcoming and explanatory, with short imperative rules. Shared Markdown rules: `references/structure.md` (Section 3.5).
 
 Sources: GitHub docs https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors; owner notes (owner-supplied search summaries; cited links inside are the summary's own); agents.md https://agents.md/ (PR instructions are a recommended AGENTS.md section).
 
@@ -9,7 +9,7 @@ Sources: GitHub docs https://docs.github.com/en/communities/setting-up-your-proj
 
 ## Contents
 - Contribution lifecycle: issue first for a major feature or a change to the rules, direct pull request for a typo or small fix; how issues are triaged (owner notes).
-- Git and pull request conventions: branch naming, Conventional Commits types, the project's git facts (branch model, release and integration branches, engineer-branch pattern), and the PR checklist. The `project-files` skill asks for missing git facts and writes them here (owner notes).
+- Git and pull request conventions: branch naming, Conventional Commits types, the project's git facts (branch model, release and integration branches, engineer-branch pattern), and the PR checklist. The `strata-lifecycle` skill (`references/structure.md` Section 3.4) asks for missing git facts and writes them here (owner notes).
 - Review expectations, such as how long a first review takes, when the project has a stated timeline (owner notes; optional).
 - Governance and legal links: `CODE_OF_CONDUCT.md`, `SECURITY.md`, and a CLA or DCO line when the project uses one; omit the line when it uses neither (owner notes).
 - AI disclosure policy: state whether AI-assisted pull requests are accepted; this setup's default is yes, with disclosure in the pull request and a human who verifies the generated work (owner notes).
@@ -28,4 +28,4 @@ Sources: GitHub docs https://docs.github.com/en/communities/setting-up-your-proj
 - a link to `CONTRIBUTING.md`
 
 ## Related
-- Review-bot instructions live in `AGENTS.md` under `## PR review guidelines`, not here (see `references/agents-guide.md`).
+- Review-bot instructions live in `AGENTS.md` under `## PR review guidelines`, not here (see `assets/agents-guide.md`).

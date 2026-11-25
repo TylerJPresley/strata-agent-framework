@@ -1,6 +1,6 @@
 # README.md guide
 
-For people: the vision, the problem-to-solution punch, onboarding, and quick usage. Friendly, direct, plain tone. Detail is linked out. Shared Markdown rules: `SKILL.md`.
+For people: the vision, the problem-to-solution punch, onboarding, and quick usage. Friendly, direct, plain tone. Detail is linked out. Shared Markdown rules: `references/structure.md` (Section 3.5).
 
 Sources: standard-readme https://raw.githubusercontent.com/richardlitt/standard-readme/master/spec.md (also https://github.com/RichardLitt/standard-readme/blob/main/spec.md); agents.md https://agents.md/ ("README.md files are for humans: quick starts, project descriptions, and contribution guidelines"); owner notes (owner-supplied search summaries; cited links inside are the summary's own). Fetched 2026-11-14.
 

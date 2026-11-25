@@ -1,6 +1,6 @@
 # AGENTS.md guide
 
-For agents: autonomous execution, local verification, guardrails. Imperative, deterministic, token-efficient, no fluff. Shared Markdown rules: `SKILL.md`.
+For agents: autonomous execution, local verification, guardrails. Imperative, deterministic, token-efficient, no fluff. Shared Markdown rules: `references/structure.md` (Section 3.5).
 
 Sources: agents.md https://agents.md/ and https://github.com/agentsmd/agents.md (a README for agents; plain Markdown, any headings); GitHub blog https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/ (2,500+ repositories); owner notes (owner-supplied search summaries; cited links inside are the summary's own).
 
