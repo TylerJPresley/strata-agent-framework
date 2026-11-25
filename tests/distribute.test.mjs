@@ -43,7 +43,7 @@ test("deploys to detected default app folders (kiro, pi, claude), rewrites skill
   assert.ok(fs.existsSync(path.join(home, ".kiro", ".strata-manifest.json")));
   assert.ok(fs.existsSync(path.join(home, ".kiro", "agents", "strata-director.json")));
   assert.ok(fs.existsSync(path.join(home, ".kiro", "skills", "strata-lifecycle", "scripts", "verify-plan.mjs")));
-  const kiroSteering = fs.readFileSync(path.join(home, ".kiro", "steering", "strata-concise.md"), "utf8");
+  const kiroSteering = fs.readFileSync(path.join(home, ".kiro", "steering", "strata-plan-and-verify.md"), "utf8");
   assert.match(kiroSteering, /~\/\.kiro\/skills\/strata-lifecycle/);
   assert.doesNotMatch(kiroSteering, /~\/\.agents\/skills\//);
 
@@ -56,10 +56,12 @@ test("deploys to detected default app folders (kiro, pi, claude), rewrites skill
   assert.match(piAgentsMd, /<!-- STRATA:START -->/);
   assert.match(piAgentsMd, /~\/\.pi\/agent\/skills\/strata-lifecycle/);
 
-  // Claude gets CLAUDE.md with ~/.claude/skills/... paths and 7 specialists (no strata-director.md)
+  // Claude gets CLAUDE.md with ~/.claude/skills/... paths and 7 specialists with Claude tool names (no strata-director.md)
   const claudeMd = fs.readFileSync(path.join(home, ".claude", "CLAUDE.md"), "utf8");
   assert.match(claudeMd, /~\/\.claude\/skills\/strata-lifecycle/);
   assert.ok(!fs.existsSync(path.join(home, ".claude", "agents", "strata-director.md")));
+  const claudeReviewer = fs.readFileSync(path.join(home, ".claude", "agents", "strata-reviewer.md"), "utf8");
+  assert.match(claudeReviewer, /tools: Read, Grep, Glob, LS, Write, Edit, Bash/);
 
   // Hermes and agents-global are not deployed by default
   assert.ok(!fs.existsSync(path.join(home, ".hermes", ".strata-manifest.json")), "hermes should not be deployed by default");
@@ -98,14 +100,25 @@ test("--targets selects exact targets and uninstalls previously deployed targets
   const home = makeHome(t);
   fs.mkdirSync(path.join(home, ".claude"), { recursive: true });
   fs.mkdirSync(path.join(home, ".gemini"), { recursive: true });
+  fs.mkdirSync(path.join(home, ".qwen"), { recursive: true });
 
-  const r1 = runDist(home, ["--targets", "claude,gemini"]);
+  const r1 = runDist(home, ["--targets", "claude,gemini,qwen"]);
   assert.equal(r1.status, 0, r1.stdout + r1.stderr);
   assert.ok(fs.existsSync(path.join(home, ".gemini", "GEMINI.md")));
+  assert.ok(fs.existsSync(path.join(home, ".qwen", "QWEN.md")));
+  const qwenMd = fs.readFileSync(path.join(home, ".qwen", "QWEN.md"), "utf8");
+  assert.match(qwenMd, /~\/\.qwen\/skills\/strata-lifecycle/);
+  assert.ok(fs.existsSync(path.join(home, ".qwen", "agents", "strata-reviewer.md")));
+  const qwenReviewer = fs.readFileSync(path.join(home, ".qwen", "agents", "strata-reviewer.md"), "utf8");
+  assert.match(qwenReviewer, /- read_file/);
+  assert.match(qwenReviewer, /- grep_search/);
+  assert.ok(!fs.existsSync(path.join(home, ".qwen", "agents", "strata-director.md")));
 
-  // Now omit gemini -> should automatically uninstall gemini
+  // Now omit gemini and qwen -> should automatically uninstall gemini and qwen
   const r2 = runDist(home, ["--targets", "claude"]);
   assert.equal(r2.status, 0, r2.stdout + r2.stderr);
   assert.ok(!fs.existsSync(path.join(home, ".gemini", "GEMINI.md")));
   assert.ok(!fs.existsSync(path.join(home, ".gemini", ".strata-manifest.json")));
+  assert.ok(!fs.existsSync(path.join(home, ".qwen", "QWEN.md")));
+  assert.ok(!fs.existsSync(path.join(home, ".qwen", ".strata-manifest.json")));
 });

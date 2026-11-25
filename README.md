@@ -2,7 +2,7 @@
 
 **AI agents:** start with [AGENTS.md](AGENTS.md) for commands, project map and rules.
 
-Version: `0.1.2` · License: [MIT](LICENSE)
+Version: `0.1.3` · License: [MIT](LICENSE)
 
 Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.
 
@@ -92,14 +92,14 @@ One global specialist roster ([`agents/`](agents/)) governs every project with s
 
 | Specialist | Role | Allowed Writes | Hard Denies |
 |------------|------|----------------|-------------|
-| [`strata-director`](agents/strata-director.md) | Team lead & router | `_internal/handoff.md`, `decisions.md`, `lessons.md`, `plans/archive/**` | Source code, tests, blueprints, repo docs |
-| [`strata-keeper`](agents/strata-keeper.md) | Blueprint guardian | `**/sbp-*.md`, `**/*blueprint*.md`, `**/questions.md` | Never guesses `Not supplied:`, no code/tests/plans |
-| [`strata-planner`](agents/strata-planner.md) | Systems designer | `_internal/plans/<slug>.md`, `<slug>.criteria`, `proposals/**` | No shell execution, no code/test/doc edits |
-| [`strata-implementer`](agents/strata-implementer.md) | Test-first builder | Source code, tests, `gate.mjs`, commits on `feature/<slug>` | Blueprints, `AGENTS.md`, `README.md`, `*.review.md` |
-| [`strata-reviewer`](agents/strata-reviewer.md) | Independent verifier | `_internal/plans/<slug>.review.md`, `_internal/scratch/**` | Read-only on source, tests, blueprints, plans, docs |
-| [`strata-security-reviewer`](agents/strata-security-reviewer.md) | Supply-chain & security auditor | `_internal/plans/<slug>.security.md`, `_internal/scratch/audit/**` | Read-only on project files; judges `audit.mjs` hits |
-| [`strata-researcher`](agents/strata-researcher.md) | Primary-source investigator | `_internal/research/**` (sources, findings, SHA-256 index) | Never edits code, specs, plans, or repo docs |
-| [`strata-documenter`](agents/strata-documenter.md) | Documentation keeper | `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `docs/**` | Blueprints (`sbp-*.md`), source code, tests |
+| [`strata-director`](agents/prompts/strata-director.md) | Team lead & router | `_internal/handoff.md`, `decisions.md`, `lessons.md`, `plans/archive/**` | Source code, tests, blueprints, repo docs |
+| [`strata-keeper`](agents/prompts/strata-keeper.md) | Blueprint guardian | `**/sbp-*.md`, `**/*blueprint*.md`, `**/questions.md` | Never guesses `Not supplied:`, no code/tests/plans |
+| [`strata-planner`](agents/prompts/strata-planner.md) | Systems designer | `_internal/plans/<slug>.md`, `<slug>.criteria`, `proposals/**` | No shell execution, no code/test/doc edits |
+| [`strata-implementer`](agents/prompts/strata-implementer.md) | Test-first builder | Source code, tests, `gate.mjs`, commits on `feature/<slug>` | Blueprints, `AGENTS.md`, `README.md`, `*.review.md` |
+| [`strata-reviewer`](agents/prompts/strata-reviewer.md) | Independent verifier | `_internal/plans/<slug>.review.md`, `_internal/scratch/**` | Read-only on source, tests, blueprints, plans, docs |
+| [`strata-security-reviewer`](agents/prompts/strata-security-reviewer.md) | Supply-chain & security auditor | `_internal/plans/<slug>.security.md`, `_internal/scratch/audit/**` | Read-only on project files; judges `audit.mjs` hits |
+| [`strata-researcher`](agents/prompts/strata-researcher.md) | Primary-source investigator | `_internal/research/**` (sources, findings, SHA-256 index) | Never edits code, specs, plans, or repo docs |
+| [`strata-documenter`](agents/prompts/strata-documenter.md) | Documentation keeper | `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `docs/**` | Blueprints (`sbp-*.md`), source code, tests |
 
 ### 5. Disk Memory (`_internal/`) & Deterministic Scripts
 
@@ -115,19 +115,20 @@ Continuity lives on disk in `<project>/_internal/` (gitignored, never in chat or
 
 `node scripts/distribute.mjs` deploys directly into each selected tool's native directory in the exact format that tool expects, rewriting internal skill and script paths to that tool's own directory so every deployment is 100% self-contained:
 
-| Target Name | Default Path | Ring 1 Conductor (Always-On) | Ring 2 Specialist Subagents | Ring 2 & 3 Self-Contained Skills | Hooks |
-|-------------|--------------|------------------------------|-----------------------------|----------------------------------|-------|
-| **`kiro`** | `~/.kiro` | `steering/strata-*.md` (18 atomic rules) | `agents/strata-*.json` (compiled JSON with permissions) | `skills/strata-*/` (`SKILL.md`, `references/`, `assets/`, `scripts/`) | `hooks/strata-handoff-start.json` |
-| **`pi`** | `~/.pi/agent` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | `agents/strata-*.md` | `skills/strata-*/` | — |
-| **`claude`** | `~/.claude` | `CLAUDE.md` (managed `<!-- STRATA -->` bottom block) | `agents/strata-*.md` | `skills/strata-*/` | — |
+| Target Name | Default Path | Ring 1 Conductor (Always-On) | Ring 2 Specialist Subagents (`agents/<app>/`) | Ring 2 & 3 Self-Contained Skills | Hooks |
+|-------------|--------------|------------------------------|-----------------------------------------------|----------------------------------|-------|
+| **`kiro`** | `~/.kiro` | `steering/strata-*.md` (18 atomic rules) | `agents/kiro/strata-*.json` → `~/.kiro/agents/strata-*.json` (8 agents with Kiro permissions) | `skills/strata-*/` (`SKILL.md`, `references/`, `assets/`, `scripts/`) | `hooks/strata-handoff-start.json` |
+| **`pi`** | `~/.pi/agent` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | `agents/pi/strata-*.md` → `~/.pi/agent/agents/strata-*.md` (7 specialists with Pi tools) | `skills/strata-*/` | — |
+| **`claude`** | `~/.claude` | `CLAUDE.md` (managed `<!-- STRATA -->` bottom block) | `agents/claude/strata-*.md` → `~/.claude/agents/strata-*.md` (7 specialists with Claude tools) | `skills/strata-*/` | — |
+| **`qwen`** | `~/.qwen` | `QWEN.md` (managed `<!-- STRATA -->` bottom block) | `agents/qwen/strata-*.md` → `~/.qwen/agents/strata-*.md` (7 specialists with Qwen tools) | `skills/strata-*/` | — |
 | **`gemini`** | `~/.gemini` | `GEMINI.md` (managed `<!-- STRATA -->` bottom block) | — | `config/skills/strata-*/` | — |
-| **`opencode`** | `~/.config/opencode` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | `agents/strata-*.md` | `skills/strata-*/` | — |
+| **`opencode`** | `~/.config/opencode` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | `agents/opencode/strata-*.md` → `~/.config/opencode/agents/strata-*.md` (7 specialists) | `skills/strata-*/` | — |
 | **`codex`** | `~/.codex` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | — | `skills/strata-*/` | — |
 | **`hermes`** | `~/.hermes` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | — | `skills/strata-*/` | — |
-| **`agents-global`** | `~/.agents` | `steering/strata-*.md` (optional shared store) | `agents/strata-*.md` | `skills/strata-*/` | `hooks/strata-handoff-start.json` |
-| **Custom (`--add`)** | `<dir>[:<layout>]` | Inferred or specified layout (`pi`, `claude`, `kiro`, `gemini`, `codex`, `opencode`, `agents`) | Per layout | Per layout | Per layout |
+| **`agents-global`** | `~/.agents` | `steering/strata-*.md` (optional shared store) | `agents/prompts/strata-*.md` | `skills/strata-*/` | `hooks/strata-handoff-start.json` |
+| **Custom (`--add`)** | `<dir>[:<layout>]` | Inferred or specified layout (`pi`, `claude`, `qwen`, `kiro`, `gemini`, `codex`, `opencode`, `agents`) | Per layout | Per layout | Per layout |
 
-- **Non-destructive root file registration:** For tools that use a single root instruction file (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`), `distribute.mjs` appends and updates a fenced `<!-- STRATA:START --> ... <!-- STRATA:END -->` block at the bottom of the file, preserving any custom rules or project commands above it. Unchecking the tool cleanly removes only that block.
+- **Non-destructive root file registration:** For tools that use a single root instruction file (`AGENTS.md`, `CLAUDE.md`, `QWEN.md`, `GEMINI.md`), `distribute.mjs` appends and updates a fenced `<!-- STRATA:START --> ... <!-- STRATA:END -->` block at the bottom of the file, preserving any custom rules or project commands above it. Unchecking the tool cleanly removes only that block.
 
 ---
 
@@ -159,7 +160,7 @@ node scripts/distribute.mjs --yes
 Unchecking a previously deployed harness (or passing `--remove ~/.config/voidrift`) automatically reads its `.strata-manifest.json` and cleanly uninstalls only the Strata-managed files while leaving your other configs, MCP servers, and runtime state untouched.
 
 > [!NOTE]
-> **Embedded `strata-blueprints` Skill (`v0.4.0`):** This repository ships with [`strata-blueprints`](skills/strata-blueprints/SKILL.md) `0.4.0` embedded out of the box. If you maintain a local checkout of the standalone [`strata-blueprints`](https://github.com/TylerJPresley/strata-blueprints) repository, `node scripts/distribute.mjs` automatically syncs from `../strata-blueprints/skills/strata-blueprints` (or `STRATA_BP_SOURCE`), or you can sync manually with:
+> **Embedded `strata-blueprints` Skill (`v0.4.1`):** This repository ships with [`strata-blueprints`](skills/strata-blueprints/SKILL.md) `0.4.1` embedded out of the box. If you maintain a local checkout of the standalone [`strata-blueprints`](https://github.com/TylerJPresley/strata-blueprints) repository, `node scripts/distribute.mjs` automatically syncs from `../strata-blueprints/skills/strata-blueprints` (or `STRATA_BP_SOURCE`), or you can sync manually with:
 > `node scripts/sync-skill.mjs <path-to-strata-blueprints>/skills/strata-blueprints --target ./skills`
 
 ## Usage

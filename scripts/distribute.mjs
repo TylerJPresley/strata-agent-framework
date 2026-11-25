@@ -3,6 +3,7 @@
 //   - kiro          (~/.kiro)            -> steering/strata-*.md, agents/strata-*.json, skills/strata-*/, hooks/strata-*.json
 //   - pi            (~/.pi/agent)        -> AGENTS.md (managed block), agents/strata-*.md, skills/strata-*/
 //   - claude        (~/.claude)          -> CLAUDE.md (managed block), agents/strata-*.md, skills/strata-*/
+//   - qwen          (~/.qwen)            -> QWEN.md (managed block), agents/strata-*.md, skills/strata-*/
 //   - gemini        (~/.gemini)          -> GEMINI.md (managed block), config/skills/strata-*/
 //   - hermes        (~/.hermes)          -> AGENTS.md (managed block), skills/strata-*/
 //   - codex         (~/.codex)           -> AGENTS.md (managed block), skills/strata-*/
@@ -148,6 +149,21 @@ function syncEmbeddedStrataBlueprints() {
     } catch {
       return false;
     }
+  }
+}
+
+function runSyncAgents() {
+  const syncScript = path.join(source, "scripts", "sync-agents.mjs");
+  if (!fs.existsSync(syncScript)) return true;
+  try {
+    execFileSync(
+      process.execPath,
+      checkOnly || dryRun ? [syncScript, "--check"] : [syncScript],
+      { stdio: "inherit" }
+    );
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -321,6 +337,8 @@ function layoutSpec(layout) {
       return { layout: "kiro", rootDoc: null, skillSubdir: "skills", agentSubdir: "agents", steeringSubdir: "steering", hookSubdir: "hooks" };
     case "claude":
       return { layout: "claude", rootDoc: "CLAUDE.md", skillSubdir: "skills", agentSubdir: "agents" };
+    case "qwen":
+      return { layout: "qwen", rootDoc: "QWEN.md", skillSubdir: "skills", agentSubdir: "agents" };
     case "gemini":
       return { layout: "gemini", rootDoc: "GEMINI.md", skillSubdir: path.join("config", "skills") };
     case "pi":
@@ -342,6 +360,7 @@ function inferLayoutFromDir(absDir, explicitLayout) {
   const full = absDir.toLowerCase();
   if (base.includes("kiro")) return "kiro";
   if (base.includes("claude")) return "claude";
+  if (base.includes("qwen")) return "qwen";
   if (base.includes("gemini")) return "gemini";
   if (full.includes("/.pi/") || base === "pi") return "pi";
   if (base.includes("hermes")) return "hermes";
@@ -381,7 +400,7 @@ function parseAddSpec(spec) {
   const colonIdx = spec.lastIndexOf(":");
   if (colonIdx > 1) {
     const maybeLayout = spec.slice(colonIdx + 1);
-    if (["agents", "agents-global", "kiro", "pi", "claude", "gemini", "hermes", "codex", "opencode"].includes(maybeLayout)) {
+    if (["agents", "agents-global", "kiro", "pi", "claude", "qwen", "gemini", "hermes", "codex", "opencode"].includes(maybeLayout)) {
       rawPath = spec.slice(0, colonIdx);
       explicitLayout = maybeLayout === "agents" ? "agents-global" : maybeLayout;
     }
@@ -396,6 +415,7 @@ const commonTargets = [
   { name: "kiro", root: path.join(home, ".kiro"), ...layoutSpec("kiro"), defaultSelected: true },
   { name: "pi", root: path.join(home, ".pi", "agent"), ...layoutSpec("pi"), defaultSelected: true },
   { name: "claude", root: path.join(home, ".claude"), ...layoutSpec("claude"), defaultSelected: true },
+  { name: "qwen", root: path.join(home, ".qwen"), ...layoutSpec("qwen"), defaultSelected: false },
   { name: "gemini", root: path.join(home, ".gemini"), ...layoutSpec("gemini"), defaultSelected: false },
   { name: "hermes", root: path.join(home, ".hermes"), ...layoutSpec("hermes"), defaultSelected: false },
   { name: "codex", root: path.join(home, ".codex"), ...layoutSpec("codex"), defaultSelected: false },
@@ -488,26 +508,41 @@ function computeTargetPlan(t) {
   }
 
   if (t.layout === "agents-global") {
-    for (const dir of ["steering", "agents", "skills", "hooks"]) {
-      addDir(dir, dir);
-    }
+    addDir("steering", "steering");
+    addDir(fs.existsSync(path.join(source, "agents", "prompts")) ? path.join("agents", "prompts") : "agents", "agents");
+    addDir("skills", "skills");
+    addDir("hooks", "hooks");
   } else if (t.layout === "kiro") {
     for (const dir of ["steering", "skills", "hooks"]) {
       addDir(dir, dir);
     }
-    const agentsDir = path.join(source, "agents");
-    if (fs.existsSync(agentsDir)) {
-      for (const mdFile of fs.readdirSync(agentsDir).filter((x) => x.endsWith(".md")).sort()) {
-        const baseName = path.basename(mdFile, ".md");
-        const mdPath = path.join(agentsDir, mdFile);
-        const tmplPath = path.join(source, "agents-kiro", `${baseName}.json`);
-        addDesired(`agents/${baseName}.json`, compileKiroAgentJson(mdPath, tmplPath, targetSkillsPrefix));
+    const kiroAgentsDir = path.join(source, "agents", "kiro");
+    if (fs.existsSync(kiroAgentsDir)) {
+      addDir(path.join("agents", "kiro"), "agents");
+    } else {
+      const agentsDir = fs.existsSync(path.join(source, "agents", "prompts"))
+        ? path.join(source, "agents", "prompts")
+        : path.join(source, "agents");
+      if (fs.existsSync(agentsDir)) {
+        for (const mdFile of fs.readdirSync(agentsDir).filter((x) => x.endsWith(".md")).sort()) {
+          const baseName = path.basename(mdFile, ".md");
+          const mdPath = path.join(agentsDir, mdFile);
+          const tmplPath = path.join(source, "agents-kiro", `${baseName}.json`);
+          addDesired(`agents/${baseName}.json`, compileKiroAgentJson(mdPath, tmplPath, targetSkillsPrefix));
+        }
       }
     }
   } else {
-    // Non-Kiro harnesses enhance their default main agent via AGENTS.md/CLAUDE.md/GEMINI.md,
-    // so they only deploy the 7 specialist subagents (excluding strata-director.md).
-    if (t.agentSubdir) addDir("agents", t.agentSubdir, (subRel) => subRel !== "strata-director.md");
+    // Non-Kiro harnesses deploy from their dedicated per-app folder (agents/<layout>/),
+    // falling back to agents/pi/ or agents/prompts/ when a custom layout is used.
+    if (t.agentSubdir) {
+      const appAgentRel = fs.existsSync(path.join(source, "agents", t.layout))
+        ? path.join("agents", t.layout)
+        : fs.existsSync(path.join(source, "agents", "pi"))
+          ? path.join("agents", "pi")
+          : "agents";
+      addDir(appAgentRel, t.agentSubdir, (subRel) => subRel !== "strata-director.md");
+    }
     if (t.skillSubdir) addDir("skills", t.skillSubdir);
   }
 
@@ -640,6 +675,10 @@ function computeTargetPlan(t) {
 if (!checkOnly) {
   if (!syncEmbeddedStrataBlueprints()) {
     console.error("distribute: strata-blueprints sync check failed; aborting");
+    process.exit(1);
+  }
+  if (!runSyncAgents()) {
+    console.error("distribute: sync-agents failed; aborting");
     process.exit(1);
   }
   if (!runSteeringLint()) {
@@ -859,10 +898,11 @@ for (const t of uninstallTargets) {
 
 if (checkOnly) {
   const bpOk = syncEmbeddedStrataBlueprints();
+  const agentsOk = runSyncAgents();
   const lintOk = runSteeringLint();
-  if (totalMutations > 0 || !lintOk || !bpOk) {
+  if (totalMutations > 0 || !lintOk || !bpOk || !agentsOk) {
     console.log(
-      `\ncheck: ${totalMutations} file(s) out of sync${!lintOk ? " (and steering-lint failed)" : ""}${!bpOk ? " (and strata-blueprints out of sync)" : ""}`
+      `\ncheck: ${totalMutations} file(s) out of sync${!lintOk ? " (and steering-lint failed)" : ""}${!bpOk ? " (and strata-blueprints out of sync)" : ""}${!agentsOk ? " (and agents/<app>/ out of sync)" : ""}`
     );
     process.exit(1);
   }

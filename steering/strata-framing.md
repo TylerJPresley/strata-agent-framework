@@ -6,4 +6,3 @@ Applies: when writing any rule, spec, plan or document an agent or a person read
 - Frame direction affirmatively by what we want and why it works; never justify a choice merely by listing what is bad.
 - State a problem as the gap between what exists and what is intended, pointing the fix at the intended state.
 - State a boundary plainly as a hard limit (`never`, `must not`, `only`); a softened limit stops being a limit.
-- Mandatory Read Gate: when writing or revising steering, skills, agent prompts, or `AGENTS.md`, read `~/.agents/skills/strata-lifecycle/references/writing-rewrites.md` and run `node ~/.agents/skills/strata-lifecycle/scripts/steering-lint.mjs`.

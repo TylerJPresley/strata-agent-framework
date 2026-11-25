@@ -13,6 +13,7 @@ Overview for people: [README.md](README.md).
 - Distribute (interactive checklist): `node scripts/distribute.mjs`
 - Distribute (non-interactive / saved targets): `node scripts/distribute.mjs --yes`
 - Distribute (verify deployed targets): `node scripts/distribute.mjs --check`
+- Sync per-app subagent folders (`agents/{kiro,pi,claude,qwen,opencode}`): `node scripts/sync-agents.mjs`
 - Sync embedded `strata-blueprints`: `node scripts/sync-skill.mjs ../strata-blueprints/skills/strata-blueprints --target ./skills`
 
 Pre-flight: run `node gate.mjs` before every commit, and `node scripts/distribute.mjs --check` after distributing.
@@ -24,12 +25,11 @@ Node.js 20+ (ES modules `.mjs`, zero external `npm` dependencies, built-in `node
 ## Map
 
 - `steering/` — Ring 1 atomic steering rules for Kiro (`strata-*.md`).
-- `templates/AGENTS.md` — Ring 1 compiled global template distributed into `<!-- STRATA:START --> ... <!-- STRATA:END -->` blocks in `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md`.
-- `agents/` — Ring 2 specialist subagent Markdown contracts (`strata-*.md`).
-- `agents-kiro/` — Kiro JSON permission templates compiled with `agents/*.md` into `~/.kiro/agents/strata-*.json`.
+- `templates/AGENTS.md` — Ring 1 compiled global template distributed into `<!-- STRATA:START --> ... <!-- STRATA:END -->` blocks in `AGENTS.md`, `CLAUDE.md`, `QWEN.md`, and `GEMINI.md`.
+- `agents/prompts/` — Canonical Ring 2 specialist subagent prompt sources (`strata-*.md`), compiled by `scripts/sync-agents.mjs` into per-app directories: `agents/kiro/` (`strata-*.json`), `agents/pi/` (`strata-*.md`), `agents/claude/` (`strata-*.md`), `agents/qwen/` (`strata-*.md`), and `agents/opencode/` (`strata-*.md`).
 - `skills/` — Self-contained Ring 2 & Ring 3 skills (`strata-blueprints`, `strata-lifecycle`, `strata-security-audit`, `strata-diagnosing-bugs`, `strata-optimization-loop`, `strata-teach`), each holding its own `SKILL.md`, `references/`, `assets/`, and runtime `scripts/`.
 - `hooks/` — Session hooks (`strata-handoff-start.json`).
-- `scripts/` — Repository maintainer tools (`distribute.mjs`, `sync-skill.mjs`, `version-check.mjs`, `install.mjs`).
+- `scripts/` — Repository maintainer tools (`distribute.mjs`, `sync-agents.mjs`, `sync-skill.mjs`, `version-check.mjs`, `install.mjs`).
 - `tests/` — Repository unit test suite (`*.test.mjs` — never distributed to target harnesses).
 
 ## Conventions

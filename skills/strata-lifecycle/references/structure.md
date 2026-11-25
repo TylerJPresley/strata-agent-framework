@@ -9,10 +9,15 @@ Strata Agent Framework organizes all capabilities into self-contained skills (`s
 
 ```text
 strata-agent-framework/
-├── AGENTS.md           # Compiled Ring 1 conductor block (deployed into AGENTS.md / CLAUDE.md / GEMINI.md)
+├── templates/AGENTS.md # Compiled Ring 1 conductor block (deployed into AGENTS.md / CLAUDE.md / QWEN.md / GEMINI.md)
 ├── steering/           # Ring 1: 18 atomic always-on rules for Kiro (Intent / Applies + Mandatory Read Gates)
-├── agents/             # Ring 2: 8 specialist subagent definitions (Director + 7 Specialists)
-├── agents-kiro/        # Kiro JSON permission templates compiled into ~/.kiro/agents/strata-*.json
+├── agents/             # Ring 2: Per-app subagent definitions compiled from agents/prompts/ by scripts/sync-agents.mjs
+│   ├── prompts/        # Canonical prompt sources (Director + 7 Specialists)
+│   ├── kiro/           # Kiro JSON permission templates (strata-*.json)
+│   ├── pi/             # Pi subagents with Pi tool names & extension exclusions (strata-*.md)
+│   ├── claude/         # Claude Code subagents with Claude tool names (strata-*.md)
+│   ├── qwen/           # Qwen Code subagents with Qwen tool names & color enum (strata-*.md)
+│   └── opencode/       # OpenCode subagents (strata-*.md)
 ├── hooks/              # Kiro SessionStart handoff hook (strata-handoff-start.json)
 ├── skills/             # Ring 2 & Ring 3: Self-contained capability routers (SKILL.md + references/ + assets/ + scripts/)
 │   ├── strata-blueprints/       # 3-layer specification standard, guides, templates, linter, and publish tool

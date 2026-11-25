@@ -13,13 +13,14 @@ Intent: a bug is fixed at its cause, and a regression test keeps it fixed.
 
 ## How to work
 1. Build a fast feedback loop first: one command that reproduces the failure quickly, saved so it runs the same way each time.
-2. Minimize the reproduction to the smallest input, path and state that still shows the failure.
-3. Observe what actually happens. Read the real output, the real state and the real inputs; keep what the code does separate from what it is expected to do.
-4. Name the failing assumption: the one place where the actual state and the expected state first diverge.
-5. Form one hypothesis about the cause and test it. Instrument the suspected point so the next run either confirms or refutes the hypothesis.
-6. Fix the cause the hypothesis names. The same inputs give the same failure, so a change that does not address the named assumption is a guess.
-7. Write a regression test that fails before the fix and passes after it, driving the real path the bug lived on.
-8. Re-run the reproduction command and the regression test to confirm the fix, then run the affected tests.
+2. Treat reproduction contradictions as evidence: if the user reports a symptom your run does not reproduce, never reframe or dismiss their report ("must be stale SHA", "must be a flake"). Catalogue what differs between environments (TTY vs. pipe, shell, env vars, leftover state, build artifacts) before forming a hypothesis.
+3. Minimize the reproduction to the smallest input, path and state that still shows the failure.
+4. Observe what actually happens and check persistent state: read the real output, real state, and real inputs—including caches, temp files, session state, queues, or DB rows left behind by prior runs. Before blaming an external system (model, API, library), inspect the exact input payload it received.
+5. Name the failing assumption: the one place where the actual state and the expected state first diverge. For multi-round bugs, record hypotheses and ruled-out causes in an investigation note under `_internal/scratch/` so you never lose context across attempts.
+6. Form one hypothesis about the cause and instrument data values, not code-path presence: log actual payloads, return values, and state at the 2–3 decision points where your hypothesis makes a testable prediction ("most non-trivial bugs are correct code processing wrong data"), and confirm your test command actually captures the output before running.
+7. Fix the cause only after specific data confirms the hypothesis. Remove temporary instrumentation after applying the fix.
+8. Write a regression test that fails before the fix and passes after it, driving the real path the bug lived on.
+9. Re-run the reproduction command and the regression test to confirm the fix, then run the affected tests.
 
 ## References
 - `references/feedback-loops.md`

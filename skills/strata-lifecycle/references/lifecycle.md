@@ -101,8 +101,9 @@ The agent that built the work **never** verifies it.
 2. **Independent Code & Architecture Review (`reviewer`):**
    - In fresh context, compare the diff against the blueprint, the plan's pinned decisions, the Systems-Thinking predicted touches, and `AGENTS.md`.
    - Flag any code structure that does not trace to a pinned decision or blueprint requirement.
+   - **Presume-Wrong & Dead-Switch Audit:** Audit every green test relied on as evidence presuming it wrong (confirming it asserts real behavior), and for every added field, option, or optional parameter, grep all read and call sites across the repository to ensure it is not a dead switch (`options.foo ?? true` declared and read, but never set by any caller).
    - **Gate Loosening Check:** If `gate.mjs` was created, modified, renamed, or deleted, include a `Loosening` section in the verdict. Any removed check, narrowed command, unconditional `exit 0`, or deletion of `gate.mjs` is an automatic `FAIL` unless the brief explicitly records Owner approval.
-   - Write verdict to `_internal/plans/<slug>.review.md` with first line exactly `PASS` or `FAIL`, followed by findings ranked by severity with `file:line`.
+   - Write verdict to `_internal/plans/<slug>.review.md` with first line exactly `PASS` or `FAIL`, followed by findings ranked by severity with `file:line`. The orchestrator triages findings into `Valid` (fix), `False positive` (skip), or `Overthinking` (skip to avoid complexity drift), and escalates to the Owner if implementation and review loop more than 3 times.
 3. **Real-Environment Verification (when closing a user-visible feature or at release):**
    - Create an isolated scratch environment under `_internal/scratch/` with its own `HOME` and config directory; **never** touch the Owner's live configuration or secrets.
    - Reuse helpers in `_internal/tools/` (loopback fakes on `127.0.0.1:0`, capture servers, Python `pty` drivers for interactive CLIs with ANSI stripped). Cap real-model calls to a handful of turns.
