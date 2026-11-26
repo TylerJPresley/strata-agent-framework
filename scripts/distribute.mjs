@@ -949,6 +949,27 @@ for (const t of activeTargets) {
   };
   fs.mkdirSync(t.root, { recursive: true });
   fs.writeFileSync(path.join(t.root, MANIFEST_NAME), JSON.stringify(manifestObj, null, 2) + "\n", "utf8");
+
+  // For Qwen Code, if settings.json overrides context.fileName (e.g. "AGENTS.md"), ensure "QWEN.md" is also included
+  // so Qwen loads both global ~/.qwen/QWEN.md and project-level AGENTS.md files.
+  if (t.layout === "qwen") {
+    const qwenSettingsPath = path.join(t.root, "settings.json");
+    if (fs.existsSync(qwenSettingsPath)) {
+      try {
+        const cfg = JSON.parse(fs.readFileSync(qwenSettingsPath, "utf8"));
+        const fn = cfg?.context?.fileName;
+        if (typeof fn === "string" && fn !== "QWEN.md") {
+          cfg.context.fileName = ["QWEN.md", fn];
+          fs.writeFileSync(qwenSettingsPath, JSON.stringify(cfg, null, 2) + "\n", "utf8");
+        } else if (Array.isArray(fn) && !fn.includes("QWEN.md")) {
+          cfg.context.fileName = ["QWEN.md", ...fn];
+          fs.writeFileSync(qwenSettingsPath, JSON.stringify(cfg, null, 2) + "\n", "utf8");
+        }
+      } catch {
+        // leave malformed settings.json untouched
+      }
+    }
+  }
 }
 
 for (const t of uninstallTargets) {

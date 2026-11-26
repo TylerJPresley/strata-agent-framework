@@ -101,6 +101,7 @@ test("--targets selects exact targets and uninstalls previously deployed targets
   fs.mkdirSync(path.join(home, ".claude"), { recursive: true });
   fs.mkdirSync(path.join(home, ".gemini"), { recursive: true });
   fs.mkdirSync(path.join(home, ".qwen"), { recursive: true });
+  fs.writeFileSync(path.join(home, ".qwen", "settings.json"), JSON.stringify({ context: { fileName: "AGENTS.md" } }, null, 2) + "\n");
   fs.mkdirSync(path.join(home, ".hermes"), { recursive: true });
   fs.writeFileSync(path.join(home, ".hermes", "SOUL.md"), "You are Hermes Agent, built by Nous Research.\n");
 
@@ -108,6 +109,8 @@ test("--targets selects exact targets and uninstalls previously deployed targets
   assert.equal(r1.status, 0, r1.stdout + r1.stderr);
   assert.ok(fs.existsSync(path.join(home, ".gemini", "GEMINI.md")));
   assert.ok(fs.existsSync(path.join(home, ".qwen", "QWEN.md")));
+  const qwenSettings = JSON.parse(fs.readFileSync(path.join(home, ".qwen", "settings.json"), "utf8"));
+  assert.deepEqual(qwenSettings.context.fileName, ["QWEN.md", "AGENTS.md"]);
   assert.ok(fs.existsSync(path.join(home, ".hermes", "SOUL.md")));
   const hermesSoul = fs.readFileSync(path.join(home, ".hermes", "SOUL.md"), "utf8");
   assert.match(hermesSoul, /You are Hermes Agent, built by Nous Research\./);

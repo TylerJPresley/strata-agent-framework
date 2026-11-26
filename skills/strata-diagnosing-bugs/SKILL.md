@@ -1,6 +1,6 @@
 ---
 name: strata-diagnosing-bugs
-description: "Reproduce bugs with a fast loop, find root cause, and fix. Use when a test fails, a bug is reported, or observed behavior differs from what the spec describes."
+description: "Reproduce bugs in a fast loop, find root cause, and fix — use when a test fails, a bug is reported, or observed behavior differs from what the spec describes."
 ---
 
 # Diagnosing bugs

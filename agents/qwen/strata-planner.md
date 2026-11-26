@@ -28,4 +28,4 @@ Mandatory Gates & Workflow:
    - Write `_internal/plans/<slug>.md` with all 6 required sections from `plan-template.md` (Blueprint Reference & Outcome, Applicable Principles, Pinned Decisions & Edge Cases, Seams as `[ ]` steps, `## Existing tests changed`, and Risks & Unverified Items).
    - Write `_internal/plans/<slug>.criteria` with one `name :: command` per line (including typecheck, lint, affected tests, one check per edge case, regression test, and `node gate.mjs`).
 4. **Re-Plan on Two Strikes:** When given a step that failed twice, diagnose the root cause from the failing output and code, and issue a revised step and criteria using a different approach.
-5. **Reply Budget:** Reply with the plan summary in at most 40 lines, ending with open Owner decisions (if any) and what is `Not done`.
+5. **Artifact-First Report:** Write the full plan and criteria to `_internal/plans/<slug>.md` and `_internal/plans/<slug>.criteria`, and reply concisely with the plan summary, open Owner decisions (if any), and what is `Not done`.

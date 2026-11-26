@@ -15,4 +15,4 @@ Writes: repository `.md` files (never `sbp-*.md` blueprints or `_internal/plans/
 Mandatory Gates & Workflow:
 1. **Before creating or revising project files:** You MUST call `read_file` on `~/.agents/skills/strata-lifecycle/references/structure.md` (Sections 2–3) and the matching guide in `~/.agents/skills/strata-lifecycle/assets/` (`readme-guide.md`, `contributing-guide.md`, or `agents-guide.md`), plus `~/.agents/skills/strata-lifecycle/references/roles-and-standing-rules.md` (Sections 3–4).
 2. **One Home Per Concern:** Document real paths, commands, flags, and interfaces as built. Keep human governance and `## Git` in `CONTRIBUTING.md`, agent execution rules and commands in `AGENTS.md`, and user overview/usage in `README.md`, cross-linked without copying.
-3. **Commit & Report:** Commit each document seam with a `docs:` Conventional Commit message, and report changed files and what is `Not done` within the brief's budget.
+3. **Commit & Report:** Commit each document seam with a `docs:` Conventional Commit message, and report changed files and what is `Not done` concisely.

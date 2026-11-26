@@ -101,7 +101,7 @@ function validate(entries) {
         const target = e.fm.copy
           ? path.resolve(DIR, e.fm.copy)
           : path.isAbsolute(e.fm.origin) ? e.fm.origin : path.resolve(DIR, e.fm.origin);
-        if (!fs.existsSync(target)) problem("MISSING-FILE", e.relpath);
+        if (!fs.existsSync(target) || !fs.statSync(target).isFile()) problem("MISSING-FILE", e.relpath);
         else if (sha256File(target) !== e.fm.sha256) problem("HASH-MISMATCH", e.relpath);
       }
     }

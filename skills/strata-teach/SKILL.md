@@ -1,6 +1,6 @@
 ---
 name: strata-teach
-description: "Teach a subject from primary sources with spaced retrieval. Build long-term retention through desirable difficulty, retrieval practice, spacing, and interleaving carried across sessions by workspace files. Use to learn a subject over time, not for a one-off answer."
+description: "Teach any subject from primary sources with spaced recall — build long-term retention through desirable difficulty, retrieval practice, spacing, and interleaving carried across sessions by workspace files. Use to learn a subject over time, not for a one-off answer."
 ---
 
 # Teach

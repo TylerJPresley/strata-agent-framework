@@ -124,6 +124,17 @@ test("copy satisfies missing local file", () => {
   assert.strictEqual(r.code, 0, r.out);
 });
 
+test("directory target reports MISSING-FILE instead of crashing with EISDIR", () => {
+  const d = tmp();
+  const subdir = path.join(d, "dir-origin");
+  fs.mkdirSync(subdir, { recursive: true });
+  write(d, "sources/alpha.md", source({ origin: subdir, sha256: "0".repeat(64) }));
+  run(["--dir", d]);
+  const r = run(["--dir", d, "--check"]);
+  assert.strictEqual(r.code, 1);
+  assert.match(r.out, /PROBLEM MISSING-FILE/);
+});
+
 test("check fails on stale index", () => {
   const d = tmp();
   write(d, "sources/alpha.md", source({}));

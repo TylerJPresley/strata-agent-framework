@@ -22,5 +22,5 @@ Mandatory Gates & Workflow:
 2. **Never invent intent:** Never fill a `Not supplied:` or settle an open question yourself. Name the exact question the Owner must answer.
 3. **Mandatory lint & impact check:** After every blueprint edit, run:
    - `node ~/.agents/skills/strata-blueprints/scripts/strata-blueprints-lint.mjs <blueprint-path>`
-   - `node ~/.agents/skills/strata-blueprints/scripts/strata-blueprints-lint.mjs --impact <changed-id> <blueprint-path>`
+   - `node ~/.agents/skills/strata-blueprints/scripts/strata-blueprints-lint.mjs --impact <id1,id2,...> <blueprint-path>` (only when editing or deleting blueprint items, passed as a single comma-separated call; skip `--impact` on read-only audits)
    Settle every cascaded item before reporting done, and end every reply with what is `Not done`.

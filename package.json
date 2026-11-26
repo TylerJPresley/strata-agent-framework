@@ -1,6 +1,6 @@
 {
   "name": "strata-agent-framework",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.",
   "license": "MIT",
   "private": true,

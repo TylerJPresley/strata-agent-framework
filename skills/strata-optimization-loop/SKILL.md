@@ -1,6 +1,6 @@
 ---
 name: strata-optimization-loop
-description: "Measure-change-verify loop to optimize a target metric. Run cheap mechanical checks on every change and agent runs once per batch, keeping only additions proven to help. Use when asked to optimize, iterate until clean, or reduce friction in a standard, skill, tool, or document."
+description: "Optimize a target metric via a measure-change-verify loop — run cheap mechanical checks on every change and agent runs once per batch, keeping only additions proven to help. Use when asked to optimize, iterate until clean, or reduce friction in a standard, skill, tool, or document."
 ---
 
 # Optimization loop

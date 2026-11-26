@@ -1,6 +1,6 @@
 ---
 name: strata-lifecycle
-description: "Run the spec-driven development and verification lifecycle. Bootstrap project files (AGENTS.md, CONTRIBUTING.md, gate.mjs), triage requests, run discovery rounds, plan features with pinned decisions and runnable criteria, execute test-first builds, run independent verification, and manage session handoffs or retrospectives."
+description: "Triage, plan, build test-first, and review project work — bootstrap project files (AGENTS.md, CONTRIBUTING.md, gate.mjs), run discovery rounds, plan features with pinned decisions and runnable criteria, execute test-first builds, run independent verification, and manage session handoffs or retrospectives."
 ---
 
 # Project Lifecycle & Development Framework
