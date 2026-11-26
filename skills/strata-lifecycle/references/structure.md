@@ -12,12 +12,12 @@ strata-agent-framework/
 ├── templates/AGENTS.md # Compiled Ring 1 conductor block (deployed into AGENTS.md / CLAUDE.md / QWEN.md / GEMINI.md / SOUL.md)
 ├── steering/           # Ring 1: 18 atomic always-on rules for Kiro (Intent / Applies + Mandatory Read Gates)
 ├── agents/             # Ring 2: Per-app subagent definitions compiled from agents/prompts/ by scripts/sync-agents.mjs
-│   ├── prompts/        # Canonical prompt sources (Director + 7 Specialists)
-│   ├── kiro/           # Kiro JSON permission templates (strata-*.json)
-│   ├── pi/             # Pi subagents with Pi tool names & extension exclusions (strata-*.md)
-│   ├── claude/         # Claude Code subagents with Claude tool names (strata-*.md)
-│   ├── qwen/           # Qwen Code subagents with Qwen tool names & color enum (strata-*.md)
-│   └── opencode/       # OpenCode subagents (strata-*.md)
+│   ├── prompts/        # Canonical prompt sources (7 Specialists; main agent gets strata-director persona via Ring 1)
+│   ├── kiro/           # Kiro JSON permission templates (7 specialists: strata-*.json)
+│   ├── pi/             # Pi subagents with Pi tool names & extension exclusions (7 specialists: strata-*.md)
+│   ├── claude/         # Claude Code subagents with Claude tool names (7 specialists: strata-*.md)
+│   ├── qwen/           # Qwen Code subagents with Qwen tool names & color enum (7 specialists: strata-*.md)
+│   └── opencode/       # OpenCode subagents (7 specialists: strata-*.md)
 ├── hooks/              # Kiro SessionStart handoff hook (strata-handoff-start.json)
 ├── skills/             # Ring 2 & Ring 3: Self-contained capability routers (SKILL.md + references/ + assets/ + scripts/)
 │   ├── strata-blueprints/       # 3-layer specification standard, guides, templates, linter, and publish tool
@@ -29,7 +29,7 @@ strata-agent-framework/
 │   ├── strata-diagnosing-bugs/  # Fast-feedback bug reproduction & root-cause workflow
 │   ├── strata-optimization-loop/# Measure-change-verify optimization loop
 │   └── strata-teach/            # Primary-source spaced-retrieval teaching workspace
-├── scripts/            # Repo maintainer scripts (distribute.mjs, sync-skill.mjs, version-check.mjs)
+├── scripts/            # Repo maintainer scripts (distribute.mjs, sync-agents.mjs, sync-skill.mjs, version-check.mjs, install.mjs)
 └── tests/              # Repo unit test suite (*.test.mjs — never distributed to target harnesses)
 ```
 

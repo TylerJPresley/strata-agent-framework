@@ -2,7 +2,7 @@
 
 **AI agents:** start with [AGENTS.md](AGENTS.md) for commands, project map and rules.
 
-Version: `0.1.5` · License: [MIT](LICENSE)
+Version: `0.1.6` · License: [MIT](LICENSE)
 
 Harness-agnostic framework for AI coding agents—3-ring progressive context, living blueprints, specialist subagents, and deterministic verification gates.
 
@@ -57,7 +57,7 @@ Models treat passive `"see docs/foo.md"` links as optional suggestions, yet stuf
 | Ring | Location | Exposure | Role |
 |------|----------|----------|------|
 | **Ring 1: Always-On Posture** | [`AGENTS.md`](AGENTS.md) & [`steering/*.md`](steering/) | **100% (Every turn, ~2k–4.1k tokens)** | Non-negotiable behavioral invariants, safety boundaries, and **Mandatory Read Gates** into Ring 3. |
-| **Ring 2: Triggered Entry Points** | [`agents/*.md`](agents/) & [`skills/*/SKILL.md`](skills/) | **Descriptions at startup; body on demand** | 8 specialist subagent contracts and 6 consolidated, self-contained high-signal skills (`A5`). |
+| **Ring 2: Triggered Entry Points** | [`agents/prompts/*.md`](agents/prompts/) & [`skills/*/SKILL.md`](skills/) | **Descriptions at startup; body on demand** | 7 specialist subagent contracts (compiled per app into `agents/{kiro,pi,claude,qwen,opencode}`) and 6 consolidated, self-contained high-signal skills (`A5`). |
 | **Ring 3: Self-Contained Skill Docs & Scripts** | [`skills/*/references/`](skills/), [`assets/`](skills/), & [`scripts/*.mjs`](skills/) | **0% until read or executed** | Authoritative lifecycle methodology, domain engineering checklists, starter templates, and deterministic `.mjs` scripts bundled inside each owning skill. |
 
 ### 2. Spec-Driven Development with Strata Blueprints
@@ -94,9 +94,9 @@ flowchart LR
 
 One global specialist roster ([`agents/`](agents/)) governs every project with strict write isolation ([`skills/strata-lifecycle/references/roles-and-standing-rules.md`](skills/strata-lifecycle/references/roles-and-standing-rules.md)). **`strata-reviewer` + the deterministic `.mjs` scripts ARE the judge:** the builder or orchestrator never edits `<slug>.review.md` and cannot unilaterally dismiss a `FAIL` finding (it must either fix the defect, pass a cold `file:line` citation back to `strata-reviewer` so *the reviewer* flips `<slug>.review.md` to `PASS`, or escalate a `CONFLICT` to the Owner after at most 3 rounds):
 
-| Specialist | Role | Allowed Writes | Hard Denies |
-|------------|------|----------------|-------------|
-| [`strata-director`](agents/prompts/strata-director.md) | Team lead & router | `_internal/handoff.md`, `decisions.md`, `lessons.md`, `plans/archive/**` | Source code, tests, blueprints, repo docs |
+| Role / Specialist | Responsibility | Allowed Writes | Hard Denies |
+|-------------------|----------------|----------------|-------------|
+| **Main Agent (`strata-director` persona)** | Team lead & router (enhanced via `steering/` or `AGENTS.md`) | `_internal/handoff.md`, `decisions.md`, `lessons.md`, `plans/archive/**` | Dispatches specialists for Planned Work, Blueprints, Audits & Reviews |
 | [`strata-architect`](agents/prompts/strata-architect.md) | Blueprint architect | `**/sbp-*.md`, `**/*blueprint*.md`, `**/questions.md` | Never guesses `Not supplied:`, no code/tests/plans |
 | [`strata-planner`](agents/prompts/strata-planner.md) | Systems designer | `_internal/plans/<slug>.md`, `<slug>.criteria`, `proposals/**` | No shell execution, no code/test/doc edits |
 | [`strata-implementer`](agents/prompts/strata-implementer.md) | Test-first builder | Source code, tests, `gate.mjs`, commits on `feature/<slug>` | Blueprints, `AGENTS.md`, `README.md`, `*.review.md` |
@@ -121,7 +121,7 @@ Continuity lives on disk in `<project>/_internal/` (gitignored, never in chat or
 
 | Target Name | Default Path | Ring 1 Conductor (Always-On) | Ring 2 Specialist Subagents (`agents/<app>/`) | Ring 2 & 3 Self-Contained Skills | Hooks |
 |-------------|--------------|------------------------------|-----------------------------------------------|----------------------------------|-------|
-| **`kiro`** | `~/.kiro` | `steering/strata-*.md` (18 atomic rules) | `agents/kiro/strata-*.json` → `~/.kiro/agents/strata-*.json` (8 agents with Kiro permissions) | `skills/strata-*/` (`SKILL.md`, `references/`, `assets/`, `scripts/`) | `hooks/strata-handoff-start.json` |
+| **`kiro`** | `~/.kiro` | `steering/strata-*.md` (18 atomic rules) | `agents/kiro/strata-*.json` → `~/.kiro/agents/strata-*.json` (7 specialists with Kiro permissions) | `skills/strata-*/` (`SKILL.md`, `references/`, `assets/`, `scripts/`) | `hooks/strata-handoff-start.json` |
 | **`pi`** | `~/.pi/agent` | `AGENTS.md` (managed `<!-- STRATA -->` bottom block) | `agents/pi/strata-*.md` → `~/.pi/agent/agents/strata-*.md` (7 specialists with Pi tools) | `skills/strata-*/` | — |
 | **`claude`** | `~/.claude` | `CLAUDE.md` (managed `<!-- STRATA -->` bottom block) | `agents/claude/strata-*.md` → `~/.claude/agents/strata-*.md` (7 specialists with Claude tools) | `skills/strata-*/` | — |
 | **`qwen`** | `~/.qwen` | `QWEN.md` (managed `<!-- STRATA -->` bottom block) | `agents/qwen/strata-*.md` → `~/.qwen/agents/strata-*.md` (7 specialists with Qwen tools) | `skills/strata-*/` | — |
@@ -164,7 +164,7 @@ node scripts/distribute.mjs --yes
 Unchecking a previously deployed harness (or passing `--remove ~/.config/voidrift`) automatically reads its `.strata-manifest.json` and cleanly uninstalls only the Strata-managed files while leaving your other configs, MCP servers, and runtime state untouched.
 
 > [!NOTE]
-> **Embedded `strata-blueprints` Skill (`v0.4.1`):** This repository ships with [`strata-blueprints`](skills/strata-blueprints/SKILL.md) `0.4.1` embedded out of the box. If you maintain a local checkout of the standalone [`strata-blueprints`](https://github.com/TylerJPresley/strata-blueprints) repository, `node scripts/distribute.mjs` automatically syncs from `../strata-blueprints/skills/strata-blueprints` (or `STRATA_BP_SOURCE`), or you can sync manually with:
+> **Embedded `strata-blueprints` Skill (`v0.4.2`):** This repository ships with [`strata-blueprints`](skills/strata-blueprints/SKILL.md) `0.4.2` embedded out of the box. If you maintain a local checkout of the standalone [`strata-blueprints`](https://github.com/TylerJPresley/strata-blueprints) repository, `node scripts/distribute.mjs` automatically syncs from `../strata-blueprints/skills/strata-blueprints` (or `STRATA_BP_SOURCE`), or you can sync manually with:
 > `node scripts/sync-skill.mjs <path-to-strata-blueprints>/skills/strata-blueprints --target ./skills`
 
 ## Usage
@@ -215,7 +215,7 @@ To avoid skill-routing degradation (`A5`), global skills are consolidated into 6
 
 ## Quality Gate
 
-Run the repository quality gate (steering/skill linter + 196 deterministic script unit tests in `tests/`) from the repo root:
+Run the repository quality gate (steering/skill linter + 197 deterministic script unit tests in `tests/`) from the repo root:
 
 ```bash
 node gate.mjs

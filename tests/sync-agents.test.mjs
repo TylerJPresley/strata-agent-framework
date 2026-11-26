@@ -19,10 +19,6 @@ test("syncAgents compiles app-specific tool names and flags drift in --check mod
   const promptsDir = path.join(root, "agents", "prompts");
   fs.mkdirSync(promptsDir, { recursive: true });
   fs.writeFileSync(
-    path.join(promptsDir, "strata-director.md"),
-    '---\nname: strata-director\ndescription: "Lead"\ncolor: purple\ntools: read, grep, find, ls, write, edit, bash\nprompt_mode: append\nallowed_subagents: all\nexclude_extensions: pi-web-access\n---\nDirector body.\n'
-  );
-  fs.writeFileSync(
     path.join(promptsDir, "strata-planner.md"),
     '---\nname: strata-planner\ndescription: "Planner"\ncolor: blue\ntools: read, grep, find, ls, write, edit\nprompt_mode: append\nexclude_extensions: pi-web-access\n---\nPlanner body.\n'
   );
@@ -38,13 +34,12 @@ test("syncAgents compiles app-specific tool names and flags drift in --check mod
   assert.deepEqual(syncAgents(root, { check: false }), []);
   assert.deepEqual(syncAgents(root, { check: true }), []);
 
-  // Kiro has all 3 including strata-director.json
-  assert.ok(fs.existsSync(path.join(root, "agents", "kiro", "strata-director.json")));
+  // All 5 apps compile the same specialist roster with app-native tool names
   assert.ok(fs.existsSync(path.join(root, "agents", "kiro", "strata-planner.json")));
-
-  // Pi, Claude, Qwen, OpenCode exclude strata-director.md and use app-native tool names
+  assert.ok(fs.existsSync(path.join(root, "agents", "kiro", "strata-researcher.json")));
   for (const app of ["pi", "claude", "qwen", "opencode"]) {
-    assert.ok(!fs.existsSync(path.join(root, "agents", app, "strata-director.md")));
+    assert.ok(fs.existsSync(path.join(root, "agents", app, "strata-planner.md")));
+    assert.ok(fs.existsSync(path.join(root, "agents", app, "strata-researcher.md")));
   }
 
   const qwenPlanner = fs.readFileSync(path.join(root, "agents", "qwen", "strata-planner.md"), "utf8");

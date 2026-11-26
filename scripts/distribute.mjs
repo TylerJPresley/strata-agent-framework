@@ -542,7 +542,7 @@ function computeTargetPlan(t) {
         : fs.existsSync(path.join(source, "agents", "pi"))
           ? path.join("agents", "pi")
           : "agents";
-      addDir(appAgentRel, t.agentSubdir, (subRel) => subRel !== "strata-director.md");
+      addDir(appAgentRel, t.agentSubdir);
     }
     if (t.skillSubdir) addDir("skills", t.skillSubdir);
   }
@@ -949,6 +949,23 @@ for (const t of activeTargets) {
   };
   fs.mkdirSync(t.root, { recursive: true });
   fs.writeFileSync(path.join(t.root, MANIFEST_NAME), JSON.stringify(manifestObj, null, 2) + "\n", "utf8");
+
+  // For Kiro, if settings/cli.json still points chat.defaultAgent at retired "strata-director" (or "director"),
+  // remove chat.defaultAgent so Kiro uses its enhanced built-in default agent seamlessly.
+  if (t.layout === "kiro") {
+    const kiroCliJsonPath = path.join(t.root, "settings", "cli.json");
+    if (fs.existsSync(kiroCliJsonPath)) {
+      try {
+        const cfg = JSON.parse(fs.readFileSync(kiroCliJsonPath, "utf8"));
+        if (cfg["chat.defaultAgent"] === "strata-director" || cfg["chat.defaultAgent"] === "director") {
+          delete cfg["chat.defaultAgent"];
+          fs.writeFileSync(kiroCliJsonPath, JSON.stringify(cfg, null, 2) + "\n", "utf8");
+        }
+      } catch {
+        // leave malformed cli.json untouched
+      }
+    }
+  }
 
   // For Qwen Code, if settings.json overrides context.fileName (e.g. "AGENTS.md"), ensure "QWEN.md" is also included
   // so Qwen loads both global ~/.qwen/QWEN.md and project-level AGENTS.md files.

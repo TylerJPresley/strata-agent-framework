@@ -39,9 +39,10 @@ test("deploys to detected default app folders (kiro, pi, claude), rewrites skill
   const r = runDist(home);
   assert.equal(r.status, 0, r.stdout + r.stderr);
 
-  // Kiro gets steering/ and all 8 compiled agents/*.json (including strata-director.json) with ~/.kiro/skills/... paths
+  // Kiro gets steering/ and the 7 compiled specialist agents/*.json with ~/.kiro/skills/... paths (enhancing default agent, no strata-director.json)
   assert.ok(fs.existsSync(path.join(home, ".kiro", ".strata-manifest.json")));
-  assert.ok(fs.existsSync(path.join(home, ".kiro", "agents", "strata-director.json")));
+  assert.ok(fs.existsSync(path.join(home, ".kiro", "agents", "strata-architect.json")));
+  assert.ok(!fs.existsSync(path.join(home, ".kiro", "agents", "strata-director.json")));
   assert.ok(fs.existsSync(path.join(home, ".kiro", "skills", "strata-lifecycle", "scripts", "verify-plan.mjs")));
   const kiroSteering = fs.readFileSync(path.join(home, ".kiro", "steering", "strata-plan-and-verify.md"), "utf8");
   assert.match(kiroSteering, /~\/\.kiro\/skills\/strata-lifecycle/);

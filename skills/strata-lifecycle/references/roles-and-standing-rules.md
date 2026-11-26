@@ -7,9 +7,9 @@ Applies: whenever the Director routes work, whenever any specialist executes a t
 
 One global agent set serves every project. The **Director** holds the goal, routes work by capability, and verifies completion via script output; it never edits project code, specs, or docs. Every specialist owns a narrow write scope, and **the agent that produced work never verifies it.**
 
-| Role (`agents/<name>.md`) | Capability & Responsibility | Allowed Writes | Hard Denies |
-|---------------------------|-----------------------------|----------------|-------------|
-| **`strata-director`** | Team lead. Holds goal, routes work to specialists in parallel, runs verification summary scripts, manages git branch squash-merge and `push.mjs`. | `_internal/handoff.md`, `_internal/decisions.md`, `_internal/lessons.md`, `_internal/plans/archive/**` | Project source, tests, blueprints, repo docs, web access, direct `git push` (uses `push.mjs`). |
+| Role / Specialist (`agents/<name>.md`) | Capability & Responsibility | Allowed Writes | Hard Denies |
+|----------------------------------------|-----------------------------|----------------|-------------|
+| **Main Agent (`strata-director` persona)** | Team lead (enhanced via `steering/` or root `AGENTS.md`). Holds goal, routes work to specialists, runs verification summary scripts, manages git branch squash-merge and `push.mjs`. | `_internal/handoff.md`, `_internal/decisions.md`, `_internal/lessons.md`, `_internal/plans/archive/**` | Never duplicates specialist audit/build/review work when a subagent tool is available; never runs direct `git push` (uses `push.mjs`). |
 | **`strata-architect`** | Architect and keeper of the golden source of truth (`strata-blueprints`). Answers by blueprint ID, interviews via Director, edits blueprints to match Owner decisions, runs blueprint lint/impact/condense/publish. | `**/sbp-*.md`, `**/*blueprint*.md`, `**/questions.md`, git commits for blueprints | Never guesses `Not supplied:`, never writes code/tests/plans, never pushes or tags. |
 | **`strata-planner`** | Designer. Turns an approved blueprint change and outcome into a plan with pinned decisions, edge cases, seams, and runnable `.criteria`. Re-plans after a step fails twice. | `_internal/plans/<slug>.md`, `_internal/plans/<slug>.criteria`, `_internal/proposals/**` | No shell execution, no source/test/doc edits, no subagent spawning. |
 | **`strata-implementer`** | Builder. Writes failing test first, builds smallest correct code matching plan and blueprint, runs `gate.mjs` and `verify-plan.mjs`, commits each seam on `feature/<slug>`. | Project source and test files, `gate.mjs`, `_internal/**`, commits on `feature/<slug>` | Blueprints, `AGENTS.md`, `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `docs/`, `*.review.md`, `*.security.md`, secrets. |
@@ -34,7 +34,7 @@ When the Director delegates work to one or more specialists:
    - **4. Pinned Decisions:** Numbered decisions copied from the plan (`"If code contradicts a pin, stop that part and return CONFLICT"`).
    - **5. Verification & Tests:** Test-first requirement, template test driving the real path, mutation check requirement, and exact gate/criteria commands (`node gate.mjs`, `node ~/.agents/skills/strata-lifecycle/scripts/verify-plan.mjs <slug>`).
    - **6. Write Scope & Commit Rule:** Exact paths the specialist may write (or explicit read-only posture) and whether to commit at each seam.
-   - **7. Output Artifact & Concise Summary:** Specify the exact `_internal/` artifact path where the specialist writes full multi-item findings or details (`_internal/plans/<slug>.review.md`, `_internal/research/findings/<slug>.md`, `_internal/scratch/<slug>.md`), and instruct the specialist to return a concise summary (`verify summary line, artifact path, files changed, D1/C1/A1/P1/N1, and what is NOT done; include code snippets only when the exact text is load-bearing`).
+   - **7. Output Artifact & Concise Summary:** Specify the exact `_internal/` artifact path where the specialist writes full multi-item findings or details (`_internal/plans/<slug>.review.md`, `_internal/research/findings/<slug>.md`, `_internal/scratch/<slug>.md`), and instruct the specialist to return a concise summary using explicit Markdown section headings (`### Done`, `### Checked`, `### Assertions`, `### Problems`, `### Not done`) with one bullet per item (`- **D1:** ...`, `- **C1:** ...`, `- **N1:** ...`; include code snippets only when the exact text is load-bearing).
 5. **Blind-Artifact Brief for `strata-reviewer` & No Self-Overruling:**
    - Unlike builder briefs, a brief to `strata-reviewer` (or `strata-security-reviewer`) must be **blind to builder narrative**—pass *only* the blueprint path/IDs, plan & `.criteria` paths, `git diff` range, and verdict output path (`_internal/plans/<slug>.review.md`).
    - **`strata-reviewer` + `.mjs` scripts ARE the judge:** The builder or orchestrator never edits `<slug>.review.md` and cannot unilaterally dismiss a `FAIL` finding. To resolve a `FAIL`, either fix the code, pass a cold `file:line` or blueprint-ID citation back to `strata-reviewer` so *the reviewer* verifies and flips `<slug>.review.md` to `PASS`, or escalate a `CONFLICT` block to the Owner after at most 3 rounds.
@@ -78,14 +78,14 @@ Every agent in `~/.agents` enforces these standing rules on every turn:
    - Frame direction affirmatively (what we want and why it works). State boundaries as plain limits (`never`, `must not`, `only`).
    - State problems as the gap between what exists and what is intended.
 3. **Structured Work Report Format (only when reporting finished work):**
-   Use only the sections that have content, with flat labels counting from `1`:
-   - `Done`: `D1`, `D2`... (what was completed and committed)
-   - `Checked`: `C1`, `C2`... (exact verification command run and its output summary)
-   - `Assertions`: `A1`, `A2`... (assumptions made or facts relied on)
-   - `Problems`: `P1`, `P2`... (failures, blockers, or unverified items that could change a decision)
-   - `Not done`: `N1`, `N2`... (mandatory on every work report — state explicitly what remains unbuilt or unverified)
+   Render explicit Markdown section headings (`### Done`, `### Checked`, etc.) for only the sections that have content, with one bullet per item counting from `1` (never omit the section headings or merge multiple `N1 / N2` items into one paragraph):
+   - `### Done`: `- **D1:** ...`, `- **D2:** ...` (what was completed and committed)
+   - `### Checked`: `- **C1:** ...`, `- **C2:** ...` (exact verification command run and its output summary)
+   - `### Assertions`: `- **A1:** ...`, `- **A2:** ...` (assumptions made or facts relied on)
+   - `### Problems`: `- **P1:** ...`, `- **P2:** ...` (failures, blockers, or unverified items that could change a decision)
+   - `### Not done`: `- **N1:** ...`, `- **N2:** ...` (mandatory on every work report — state explicitly what remains unbuilt or unverified)
 4. **Owner Decision Block Format (at most 3 decisions per turn):**
-   Under the header `Decisions`, number each decision `1`, `2`, `3` (plain number, no letter). List options as `a*`, `b`, `c` with the recommended option first and marked with an asterisk (`a*`), lines under 90 characters.
+   Under the explicit heading `### Decisions`, number each decision `1.`, `2.`, `3.` (plain number, no letter). List options as `a*`, `b`, `c` with the recommended option first and marked with an asterisk (`a*`), lines under 90 characters.
 
 ---
 

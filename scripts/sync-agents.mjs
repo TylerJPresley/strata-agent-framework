@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
 // Compile and verify per-app subagent files under agents/<app>/ from canonical prompts in agents/prompts/strata-*.md:
-//   - agents/kiro/strata-*.json     (all 8 agents, preserving Kiro permission rules and tools)
+//   - agents/kiro/strata-*.json     (7 specialists, preserving Kiro permission rules and tools)
 //   - agents/pi/strata-*.md         (7 specialists, Pi tool names + prompt_mode + exclude_extensions)
 //   - agents/claude/strata-*.md     (7 specialists, Claude Code tool names)
 //   - agents/qwen/strata-*.md       (7 specialists, Qwen Code tool names + valid Qwen color enum)
@@ -176,7 +176,7 @@ export function syncAgents(repoRoot, { check = false } = {}) {
     const raw = fs.readFileSync(path.join(promptsDir, mdFile), "utf8");
     const parsed = parsePromptTemplate(raw, baseName);
 
-    // 1. Kiro gets all 8 compiled JSON files (including strata-director.json)
+    // 1. Kiro gets the 7 compiled specialist JSON files
     const kiroRel = path.join("agents", "kiro", `${baseName}.json`);
     const kiroAbs = path.join(repoRoot, kiroRel);
     const expectedKiro = renderKiroAgentJson(parsed, kiroAbs);
@@ -195,10 +195,7 @@ export function syncAgents(repoRoot, { check = false } = {}) {
       }
     }
 
-    // 2. Non-Kiro harnesses enhance their default main agent via AGENTS.md / CLAUDE.md / QWEN.md,
-    // so they deploy only the 7 specialist subagents (excluding strata-director.md).
-    if (baseName === "strata-director") continue;
-
+    // 2. Markdown harnesses deploy the 7 specialist subagents with app-native tool names.
     for (const app of markdownApps) {
       const appRel = path.join("agents", app, `${baseName}.md`);
       const appAbs = path.join(repoRoot, appRel);

@@ -2,6 +2,15 @@
 
 This changelog records releases of Strata Agent Framework. The `Version:` and `Embedded Strata Blueprints:` lines of `skills/strata-lifecycle/references/vision.md` are the single source of the framework version and the embedded `strata-blueprints` version, and the owner chooses release tags.
 
+## 0.1.6
+
+Unify all harnesses (`kiro`, `pi`, `claude`, `qwen`, `opencode`) around enhancing the default main session agent with the `strata-director` persona and deploying the exact same 7 `strata-*` specialist subagents, enforce explicit Markdown section headings on work reports, strictly separate Stage 1 Blueprint `AUTHOR` from Stages 2–4 Feature `BUILD` and `gate.mjs`, and embed **Strata Blueprints `0.4.2`**.
+
+- **Unified Main-Agent `strata-director` Persona & 7 Specialist Subagents Across All Harnesses (`templates/AGENTS.md`, `steering/strata-plan-and-verify.md`, `scripts/sync-agents.mjs`, `scripts/distribute.mjs`):** Qualified the `strata-director` persona with *"When running as the main session agent (unless spawned as a `strata-*` specialist subagent)..."* so spawned specialists never inherit a conflicting role identity, retired `strata-director.{md,json}` from `agents/`, and updated `distribute.mjs` to automatically clear `"chat.defaultAgent": "strata-director"` from `~/.kiro/settings/cli.json` so Kiro's built-in default agent is enhanced just like Pi, Qwen, Claude, and OpenCode.
+- **Explicit Work Report Headings (`### Done / Checked / Assertions / Problems / Not done / Decisions`) (`templates/AGENTS.md`, `steering/strata-concise.md`, `roles-and-standing-rules.md`):** Required explicit Markdown section headings with one bullet per item (`- **D1:** ...`, `- **N1:** ...`) so models never omit headings or collapse multiple `N1 / N2` items into one paragraph.
+- **Strict Stage Separation: Blueprint `AUTHOR` vs. Feature `BUILD` vs. `gate.mjs` (`templates/AGENTS.md`, `steering/strata-plan-and-verify.md`, `lifecycle.md`):** Added explicit guardrails preventing agents from jumping into `strata-planner` (`_internal/plans/`), proposing code/CLI builds (`BUILD`), or proposing to bootstrap `gate.mjs` while interviewing for or auditing a Strata Blueprint (`sbp-*.md`), and clarified that `gate.mjs` is strictly a code repository's unit-test/lint runner rather than a domain or runtime policy check.
+- **Embedded Strata Blueprints `0.4.2` (`skills/strata-blueprints/`):** Synced upstream `strata-blueprints` `0.4.2` documentation and guide updates.
+
 ## 0.1.5
 
 Give `templates/AGENTS.md` the 100% harness-agnostic `strata-director` persona (dispatch-and-wait without duplicating specialist work), replace hard reply line-count caps with `_internal/` artifact iteration and direct execution, auto-configure `~/.qwen/settings.json` `context.fileName`, and sync upstream `strata-blueprints` `0.4.1` documentation refinements.
